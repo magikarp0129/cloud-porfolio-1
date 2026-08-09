@@ -1,0 +1,24 @@
+.terraform/
+.terraform-plugin-cache/
+.pdf-tools/
+__pycache__/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.DS_Store
+*.pdf
+!/*.pdf
+
+# Incident artifacts may contain sanitized operational identifiers; publish them to the approved ticket store explicitly.
+artifacts/incidents/
+tmp/
+
+# Generated Terraform archive artifacts
+terraform/modules/operations/*.zip

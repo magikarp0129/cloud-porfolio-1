@@ -1,0 +1,62 @@
+template_version: "1.0"
+template_purpose: operator_intake
+agent_id: security
+default_adoption_level: "Level 1"
+
+request:
+  task: "<security review task>"
+  objective: "<threat, control or change to assess>"
+  business_context: "<risk, audit or incident context>"
+
+control:
+  environment: "<organization|dev|stg|prod>"
+  mode: review
+  change_ticket: "<SEC-or-CHG-or-INC-id>"
+  data_classification: "<public|internal|confidential|restricted>"
+  max_cost_usd: 2.00
+  timeout_minutes: 30
+  requester_team: "<requesting team>"
+  cloud_mutation_allowed: false
+  secret_input_allowed: false
+
+scope:
+  repository: cloud-portfolio
+  assets:
+    - "<account, service, data flow, IAM role or module>"
+  threat_boundaries:
+    - "<identity, network, encryption, supply chain, data>"
+  out_of_scope:
+    - "<explicit exclusion and owner>"
+
+inputs:
+  source_revision: "<branch or commit>"
+  artifacts:
+    - "<plan, policy, diagram, sanitized log or finding>"
+  compliance_requirements:
+    - "<control identifier if applicable>"
+
+questions:
+  - "What attack path or misuse case is possible?"
+  - "Which implemented control and residual risk can be evidenced?"
+  - "What is the least-privilege remediation and its operational impact?"
+
+success_criteria:
+  - "Findings distinguish implemented, planned and unverified controls."
+  - "Severity includes likelihood, impact and affected scope."
+
+expected_output:
+  - "evidence-linked findings and severity"
+  - "least-privilege remediation options"
+  - "verification steps, residual risk and exception owner"
+
+operator_validation:
+  - "Check sampled IAM/network/KMS evidence at the pinned revision."
+  - "Confirm no credential, token or raw restricted data is reproduced."
+
+handoff:
+  next_agents:
+    - terraform
+    - governance
+    - reviewer
+  required_artifacts:
+    - "finding disposition by risk owner"

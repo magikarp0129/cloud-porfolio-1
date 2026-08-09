@@ -1,0 +1,53 @@
+name: Agent Runtime Test
+
+on:
+  pull_request:
+    paths:
+      - "agent-runtime/**"
+      - "config/monitoring/**"
+      - "examples/incidents/**"
+      - "schemas/**"
+      - "reports/**"
+      - "scripts/agent/agentctl.py"
+      - ".github/workflows/agent-runtime-test.yml"
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Unit and policy tests
+        run: python3 -m unittest discover -s agent-runtime/tests -v
+
+      - name: Verify report library and schema boundaries
+        run: python3 scripts/validation/verify-report-library.py
+
+      - name: Validate example contract
+        run: |
+          python3 scripts/agent/agentctl.py validate \
+            --request examples/incidents/prod-api-5xx-request.json \
+            --config config/monitoring/runtime.example.json
+
+      - name: Run offline incident fixture
+        run: |
+          python3 scripts/agent/agentctl.py run monitoring \
+            --request examples/incidents/prod-api-5xx-request.json \
+            --config config/monitoring/runtime.example.json \
+            --fixture examples/incidents/prod-api-5xx-evidence.json \
+            --simulation \
+            --output-dir /tmp/agent-incident-report

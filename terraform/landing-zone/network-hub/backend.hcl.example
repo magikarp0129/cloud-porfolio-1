@@ -1,0 +1,5 @@
+bucket         = "replace-with-terraform-state-bucket"
+key            = "landing-zone/network-hub/terraform.tfstate"
+region         = "ap-northeast-2"
+dynamodb_table = "replace-with-lock-table"
+encrypt        = true

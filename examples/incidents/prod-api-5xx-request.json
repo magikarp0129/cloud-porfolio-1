@@ -1,0 +1,26 @@
+{
+  "request_id": "req-01JEXAMPLE142",
+  "agent_id": "monitoring",
+  "task": "10:20 KST 이후 example-api의 ALB 5xx 증가 원인을 read-only 증거로 분석한다.",
+  "repository": "cloud-portfolio",
+  "environment": "prod",
+  "mode": "read",
+  "incident_ticket": "INC-2026-0142",
+  "data_classification": "internal",
+  "max_cost_usd": 1.0,
+  "timeout_seconds": 300,
+  "incident": {
+    "severity": "critical",
+    "started_at": "2026-08-08T01:10:00Z",
+    "ended_at": "2026-08-08T02:10:00Z"
+  },
+  "scope": {
+    "region": "ap-northeast-2",
+    "cluster": "portfolio-prod-eks",
+    "namespace": "application-prod",
+    "service": "example-api",
+    "alb_load_balancer": "app/portfolio-prod/0123456789abcdef",
+    "workload_log_group": "/workload/prod/application-prod/example-api"
+  }
+}
+

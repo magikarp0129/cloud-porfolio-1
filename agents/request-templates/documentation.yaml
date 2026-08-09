@@ -1,0 +1,62 @@
+template_version: "1.0"
+template_purpose: operator_intake
+agent_id: documentation
+default_adoption_level: "Level 2"
+
+request:
+  task: "<documentation task>"
+  objective: "<reader outcome and document to update>"
+  business_context: "<change, release, audit or portfolio need>"
+
+control:
+  environment: "<all|organization|dev|stg|prod>"
+  mode: draft
+  change_ticket: "<DOC-or-CHG-id>"
+  data_classification: internal
+  max_cost_usd: 2.00
+  timeout_minutes: 30
+  requester_team: "<requesting team>"
+  cloud_mutation_allowed: false
+  publish_allowed: false
+
+scope:
+  repository: cloud-portfolio
+  source_revision: "<branch or commit>"
+  target_documents:
+    - "<README, docs path, runbook or PDF source>"
+  audience:
+    - "<operator, reviewer, auditor, hiring manager>"
+  excluded_topics:
+    - "<out-of-scope topic>"
+
+inputs:
+  authoritative_sources:
+    - "<Terraform code, test, plan, ADR or approved ticket>"
+  required_sections:
+    - "<section or message to add>"
+  terminology:
+    - "<canonical term and meaning>"
+
+questions:
+  - "Which claims are implemented, planned, deferred or unverified?"
+  - "Do README, runbook, outline and generated artifact stay consistent?"
+  - "What validation proves links, examples and rendered output are usable?"
+
+success_criteria:
+  - "Every implementation claim is supported by a current source."
+  - "Canonical content is linked instead of duplicated inconsistently."
+
+expected_output:
+  - "documentation patch and source map"
+  - "implemented/target boundary and unresolved evidence"
+  - "link, example and render verification results"
+
+operator_validation:
+  - "Compare critical values and states with code at the pinned revision."
+  - "Review generated PDF or rendered artifact visually before publishing."
+
+handoff:
+  next_agents:
+    - reviewer
+  required_artifacts:
+    - "reviewed documentation patch"

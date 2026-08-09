@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.internal/schemas/incident-report.schema.json",
+  "title": "Monitoring Agent incident report",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "status",
+    "request_id",
+    "trace_id",
+    "incident_ticket",
+    "facts",
+    "hypotheses",
+    "gaps",
+    "evidence",
+    "executed_mutations"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "status": {"enum": ["complete", "partial", "blocked", "simulation"]},
+    "request_id": {"type": "string"},
+    "trace_id": {"type": "string"},
+    "incident_ticket": {"type": "string"},
+    "simulation": {"type": "boolean"},
+    "facts": {"type": "array", "items": {"type": "object"}},
+    "hypotheses": {"type": "array", "items": {"type": "object"}},
+    "gaps": {"type": "array", "items": {"type": "object"}},
+    "evidence": {"type": "array", "items": {"type": "object"}},
+    "alert_policy_version": {"type": "string"},
+    "policy_evaluations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "query_id",
+          "severity",
+          "observed_window",
+          "threshold",
+          "duration",
+          "breaching_datapoints",
+          "evaluated_datapoints",
+          "missing_data_treatment"
+        ],
+        "properties": {
+          "query_id": {"type": "string"},
+          "severity": {"enum": ["critical", "warning", "info", "normal", "unknown"]},
+          "observed_window": {"type": "object"},
+          "threshold": {"type": "object"},
+          "duration": {"type": "string"},
+          "breaching_datapoints": {"type": "integer", "minimum": 0},
+          "evaluated_datapoints": {"type": "integer", "minimum": 0},
+          "missing_data_treatment": {"enum": ["missing", "ignore", "breaching", "notBreaching"]},
+          "correlated_signals": {"type": "array", "items": {"type": "string"}},
+          "operator_validation_required": {"type": "boolean"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "recovery_candidates": {"type": "array", "items": {"type": "object"}},
+    "executed_mutations": {"type": "array", "maxItems": 0}
+  }
+}

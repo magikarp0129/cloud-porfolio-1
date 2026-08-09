@@ -1,0 +1,67 @@
+template_version: "1.0"
+template_purpose: operator_intake
+agent_id: finops
+default_adoption_level: "Level 1"
+
+request:
+  task: "<cost review or anomaly analysis task>"
+  objective: "<cost question or optimization goal>"
+  business_context: "<budget, forecast or service context>"
+
+control:
+  environment: "<organization|shared|dev|stg|prod>"
+  mode: read
+  change_ticket: "<FIN-or-CHG-id>"
+  data_classification: confidential
+  max_cost_usd: 2.00
+  timeout_minutes: 30
+  requester_team: "<requesting team>"
+  cloud_mutation_allowed: false
+  purchase_stop_delete_allowed: false
+
+scope:
+  repository: cloud-portfolio
+  billing_period:
+    start: "<YYYY-MM-DD>"
+    end: "<YYYY-MM-DD>"
+  accounts_or_ous:
+    - "<account alias or OU>"
+  services:
+    - "<AWS service or product>"
+  allocation_dimensions:
+    - "<CostCenter, Service, Environment or owner tag>"
+  exclusions:
+    - "<credits, tax, migration event or known one-off>"
+
+inputs:
+  comparison_baseline: "<previous period, budget or forecast>"
+  cost_artifacts:
+    - "<CUR/Athena report, Cost Explorer export or anomaly reference>"
+  service_constraints:
+    - "<SLO, capacity, reservation or compliance constraint>"
+
+questions:
+  - "What usage, rate or allocation change explains the variance?"
+  - "Which candidates are idle, rightsizing, scheduling or commitment decisions?"
+  - "What performance and resilience evidence is needed before acting?"
+
+success_criteria:
+  - "Observed cost, estimated saving and confidence are separated."
+  - "Recommendations state owner, risk and measurement period."
+
+expected_output:
+  - "cost-driver and anomaly analysis"
+  - "ranked optimization backlog with confidence and constraints"
+  - "follow-up measurement and allocation-quality gaps"
+
+operator_validation:
+  - "Reconcile totals with the approved billing source."
+  - "Obtain service owner and finance approval for capacity or commitment changes."
+
+handoff:
+  next_agents:
+    - operations
+    - terraform
+    - reviewer
+  required_artifacts:
+    - "accepted recommendation with accountable owner"

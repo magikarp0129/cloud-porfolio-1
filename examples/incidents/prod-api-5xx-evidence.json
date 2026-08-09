@@ -1,0 +1,51 @@
+{
+  "evidence": [
+    {
+      "evidence_id": "ev-fixture-alb-5xx",
+      "source": "cloudwatch",
+      "query_id": "alb_target_5xx",
+      "status": "ok",
+      "summary": "ALB target 5xx increased from baseline to a maximum of 84 requests per minute.",
+      "data": {
+        "datapoint_count": 60,
+        "maximum": 84,
+        "latest": 63
+      }
+    },
+    {
+      "evidence_id": "ev-fixture-pods",
+      "source": "kubernetes",
+      "query_id": "k8s_workload_pods",
+      "status": "ok",
+      "summary": "Workload pods: 4/12 Ready, 17 restarts",
+      "data": {
+        "total": 12,
+        "ready": 4,
+        "unready": ["example-api-new-1", "example-api-new-2"],
+        "phases": {"Running": 12},
+        "restart_count": 17,
+        "waiting_reasons": {"CrashLoopBackOff": 2},
+        "last_termination_reasons": {"OOMKilled": 2}
+      }
+    },
+    {
+      "evidence_id": "ev-fixture-errors",
+      "source": "cloudwatch",
+      "query_id": "workload_error_summary",
+      "status": "ok",
+      "summary": "Logs Insights workload_error_summary: 1 sanitized row",
+      "data": {
+        "row_count": 1,
+        "rows": [
+          {
+            "error_code": "UPSTREAM_TIMEOUT",
+            "deployment_version": "v2.18.4",
+            "errors": "52",
+            "diagnostic": "Bearer fake-test-token-123456 and user@example.com"
+          }
+        ]
+      }
+    }
+  ]
+}
+
