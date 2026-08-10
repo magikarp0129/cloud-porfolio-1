@@ -12,7 +12,7 @@
 
 | 영역 | 현재 저장소에서 확인 가능한 내용 | 아직 목표 단계인 내용 |
 | --- | --- | --- |
-| 역할과 요청 | 10개 역할 정의, 역할별 request template, operator guide와 adoption scenario | 사내 portal과 ChatOps 통합 |
+| 역할과 요청 | Manager 1개와 전문 역할 10개, 역할별 request template, operator guide와 adoption scenario | 사내 portal과 ChatOps 통합 |
 | 실행 Runtime | Monitoring Agent read-only evidence collector, 고정 query catalog, redaction, report/audit 생성 | 중앙 AI Gateway, Tool Broker, model router와 live connector 배포 |
 | Monitoring 정책 | CPU·memory·disk·EKS·서비스 품질 11개 alert policy, Prometheus query catalog 10개 준비 | Prometheus source 활성화, rule 배포, 자동 severity evaluator와 on-call route |
 | 검증 | Agent 계약·보안·Terraform boundary 로컬 시험 25개 | live incident, IAM policy simulation, 운영 KPI baseline/actual |
@@ -20,10 +20,41 @@
 
 `Current`, `Defined`, `Target`, `Evidence`를 구분합니다. 코드나 문서가 존재하는 것, 로컬 시험이 통과한 것, 실제 AWS에 배포되어 운영 증적이 있는 것은 서로 다른 완료 단계입니다.
 
+## Organization and Reporting Lines
+
+Agent 조직은 사람의 책임을 대체하지 않습니다. **Cloud Platform Owner가 최종 accountable human**이고, Cloud Platform Manager Agent는 요청 접수, 업무 분해, 담당 조직 배정, handoff와 상태 통합을 담당하는 workflow manager입니다.
+
+```text
+Cloud Platform Owner / Designated Approver (Human)
+└── Cloud Platform Manager Agent
+    ├── Strategy, Architecture and Governance Team
+    │   ├── Architecture Agent (Domain Lead)
+    │   ├── Governance Agent
+    │   ├── Security Agent
+    │   └── FinOps Agent
+    ├── Platform Engineering and Delivery Team
+    │   ├── Terraform Agent (Domain Lead)
+    │   └── CI/CD Agent
+    ├── Reliability and Operations Team
+    │   ├── Operations Agent (Domain Lead)
+    │   └── Monitoring Agent
+    └── Assurance and Knowledge Team
+        ├── Reviewer Agent (Independent Assurance Lead)
+        └── Documentation Agent
+```
+
+보고선과 승인선은 다릅니다.
+
+- Manager Agent는 우선순위, dependency, 담당 Agent와 완료 조건을 정리하지만 domain 결론을 임의로 덮어쓰지 않습니다.
+- Security Agent는 보안 위험에 대한 stop/escalation 권한을 가지며 Security Owner에게 직접 보고할 수 있습니다.
+- Reviewer Agent는 Manager와 산출 Agent로부터 독립적으로 finding을 작성하고 unresolved finding을 사람 승인자에게 직접 전달합니다.
+- Manager Agent, Domain Lead와 Reviewer를 포함한 어떤 Agent도 자신의 결과를 최종 승인하거나 production 변경을 실행할 수 없습니다.
+
 ## Agents
 
 | Agent | Primary Responsibility | Main Outputs |
 | --- | --- | --- |
+| Cloud Platform Manager Agent | 요청 triage, 업무 분해, 조직 배정, dependency·handoff·상태 통합 | work breakdown, RACI, routing plan, consolidated status, escalation packet |
 | Architecture Agent | 요구사항, 전체 아키텍처, module boundary 설계 | architecture decision, target architecture |
 | Terraform Agent | Terraform 코드 작성, 모듈화, root/state와 환경 분리 | `terraform/modules`, `terraform/organization`, `terraform/landing-zone`, `terraform/services`, `terraform/environments` |
 | Governance Agent | AWS Organizations, OU, SCP, 정책 준수, 변경 승인 | governance model, SCP catalog, compliance checklist |
@@ -37,16 +68,16 @@
 
 ## Collaboration Flow
 
-1. Architecture Agent가 요구사항, target architecture, module boundary를 정의합니다.
-2. Governance Agent가 AWS Organizations, OU, SCP, 변경 승인 기준을 정의합니다.
-3. Terraform Agent가 organization, Landing Zone, service VPC, workload environment/platform root와 reusable module 구조를 작성합니다.
-4. Security Agent가 IAM, 네트워크, 암호화, 접근제어를 검토합니다.
-5. Monitoring Agent가 관측성 구조와 알람 정책을 추가합니다.
-6. Operations Agent가 백업, 스케줄, 패치, CVE/EOS 운영 기준을 정의합니다.
-7. FinOps Agent가 태깅, 예산, 비용 리포트 구조를 검토합니다.
-8. CI/CD Agent가 Terraform 검증과 배포 흐름을 자동화합니다.
-9. Reviewer Agent가 전체 산출물을 실무 품질 관점에서 검토합니다.
-10. Documentation Agent가 README와 PDF 포트폴리오 내용을 정리합니다.
+1. Cloud Platform Manager Agent가 요청을 접수하고 scope, risk, dependency와 필요한 전문 조직을 식별합니다.
+2. Architecture Agent가 target architecture와 module boundary를 정의하고 Governance, Security, FinOps Agent가 전략 제약을 병렬 검토합니다.
+3. Terraform Agent가 organization, Landing Zone, service VPC, environment/platform root와 reusable module 구조를 작성합니다.
+4. CI/CD Agent가 검증, plan artifact와 environment promotion gate를 구성합니다.
+5. Operations Agent가 backup, schedule, patch, CVE/EOS와 lifecycle 기준을 정의하고 Monitoring Agent가 signal, alert와 post-change evidence를 연결합니다.
+6. Security Agent와 Governance Agent가 구현 결과의 guardrail, identity와 정책 준수를 다시 확인합니다.
+7. Reviewer Agent가 전체 산출물을 독립적으로 검토하고 unresolved finding을 사람 승인자에게 보고합니다.
+8. Documentation Agent가 decision, runbook, README와 PDF를 갱신합니다.
+9. Cloud Platform Manager Agent가 완료 조건, handoff, blocker와 evidence를 하나의 상태 보고로 통합합니다.
+10. Cloud Platform Owner 또는 designated approver가 최종 판단하고 protected CI/CD만 승인된 변경을 실행합니다.
 
 ## Runtime Execution Model
 
@@ -70,6 +101,7 @@
 운영 원칙:
 
 - AI Gateway가 Corporate IdP 또는 workload identity를 검증하고 Agent별 model, tool, token quota를 적용합니다.
+- Manager Agent는 요청을 분류하고 조정하지만 다른 Agent 권한을 상속하거나 사람 승인을 대행하지 않습니다.
 - Agent는 실행 시점에만 범위가 제한된 short-lived credential을 받습니다.
 - 코드와 정책 변경은 branch, patch 또는 pull request로 제출합니다.
 - Terraform Agent를 포함한 모든 Agent는 `prod`에서 직접 `apply`하거나 AWS API를 변경하지 않습니다.
@@ -121,6 +153,7 @@ Documentation Agent는 같은 표를 여러 문서에 복사하지 않고 canoni
 
 | Control | Responsible Agent |
 | --- | --- |
+| Request intake, work breakdown, team routing, dependency와 handoff status | Cloud Platform Manager Agent |
 | Agent profile, tool boundary, target architecture | Architecture Agent |
 | Model allowlist, account/OU policy, approval rule | Governance Agent |
 | Identity validation, data classification, secret/PII control | Security Agent |
@@ -148,6 +181,7 @@ Documentation Agent는 같은 표를 여러 문서에 복사하지 않고 canoni
 - EKS QoS, namespace quota, PriorityClass, PDB/topology, autoscaling ownership이 정의되어 있다.
 - EKS backup/restore drill, upgrade gate, incident runbook과 production readiness 기준이 설명되어 있다.
 - Agent command, tool permission, production approval 경계가 정의되어 있다.
+- Manager, Domain Lead, independent Reviewer와 accountable human의 보고·승인선이 구분되어 있다.
 - Agent capability가 business outcome, engineering KPI, evidence와 accountable validation으로 연결되어 있다.
 - examples, schemas, runtime contract와 report template/example의 역할이 분리되고 자동 검증된다.
 - 월간 플랫폼 보고서와 장애 보고서 양식이 사실·가설·gap·실행·승인·evidence를 분리한다.

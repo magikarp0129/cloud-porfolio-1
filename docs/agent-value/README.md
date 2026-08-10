@@ -19,7 +19,7 @@ Agent capability
 | Area | Current status | Portfolio claim boundary |
 | --- | --- | --- |
 | Human-led adoption model | Defined | 운영자가 질문·검증·승인하는 모델을 설명할 수 있음 |
-| Role-specific request templates | Implemented as documentation | 10개 Agent의 intake 표준을 보여줄 수 있음 |
+| Role-specific request templates | Implemented as documentation | Manager 1개와 전문 Agent 10개, 총 11개 역할의 intake 표준을 보여줄 수 있음 |
 | Monitoring incident report | Read-only MVP implemented | fixture 기반 report 생성과 schema 검증을 보여줄 수 있음 |
 | Common business/engineering KPI | Defined in this directory | 측정 방법은 설명할 수 있으나 아직 실적 수치로 주장할 수 없음 |
 | Unified production scorecard | Target | live Gateway, Tool Broker, ticket/CI/billing 연계 후 구현 필요 |

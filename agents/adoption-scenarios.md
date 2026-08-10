@@ -34,6 +34,7 @@ Level은 달력이나 Agent 이름으로 승격하지 않습니다. `prod EKS �
 
 | Area | Current level | Evidence and boundary |
 | --- | --- | --- |
+| Cross-domain Manager coordination | Level 0-1 operating model | work breakdown, RACI, routing과 handoff template은 정의했지만 orchestration runtime은 구현되지 않았습니다. |
 | Monitoring incident triage | Level 1 MVP | server-owned query catalog를 사용하는 read-only evidence collector가 구현되어 있습니다. cloud mutation은 없습니다. |
 | Architecture, Governance, Security, Operations, FinOps analysis | Level 0-1 operating model | 역할과 템플릿은 정의하지만 공통 AI Gateway 및 live connector는 구현되지 않았습니다. |
 | Terraform, CI/CD, Documentation artifact drafting | Level 2 target workflow | patch, plan, 문서 초안을 만들 수 있는 절차를 정의합니다. merge, deploy, `apply`는 사람과 protected CI/CD 책임입니다. |
@@ -45,6 +46,9 @@ Level은 달력이나 Agent 이름으로 승격하지 않습니다. `prod EKS �
 
 ```text
 운영자 ticket + 역할별 템플릿
+            |
+            v
+cross-domain이면 Manager의 work breakdown과 조직 배정
             |
             v
 Agent의 read / draft / plan / review 결과
@@ -61,7 +65,7 @@ PR / change artifact + 독립 Reviewer
 사람 승인 + protected CI/CD
 ```
 
-운영자는 [request-templates](request-templates/README.md)에서 primary Agent의 템플릿을 복사해 ticket 또는 승인된 portal에 입력합니다. 템플릿은 질문을 구조화하는 intake 문서이며 배포 명령, 접근 권한 또는 승인 증명이 아닙니다.
+운영자는 [request-templates](request-templates/README.md)에서 primary Agent의 템플릿을 복사해 ticket 또는 승인된 portal에 입력합니다. 여러 조직이 필요한 요청은 `platform-manager.yaml`, 단일 domain 요청은 해당 전문 Agent 템플릿을 사용합니다. 템플릿은 질문을 구조화하는 intake 문서이며 배포 명령, 접근 권한 또는 승인 증명이 아닙니다.
 
 Agent 응답에는 최소한 다음 구역이 있어야 합니다.
 

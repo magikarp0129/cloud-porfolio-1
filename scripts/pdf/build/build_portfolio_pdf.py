@@ -421,7 +421,7 @@ def build_story(style_map):
         ["Platform product", "State split by lifecycle and blast radius", "15 modules; 3 envs; 10 TF targets"],
         ["EKS Day-2", "Logs, QoS, capacity, upgrade, recovery gates", "Current/Target matrix + runbooks"],
         ["Enterprise controls", "SCP/IAM/KMS/network + owner/approval", "HCL + policy + residual-risk review"],
-        ["AI Agent adoption", "Human-led templates, read-only MVP, staged delegation", "10 profiles; schemas; 24 tests"],
+        ["AI Agent adoption", "Human-led templates, read-only MVP, staged delegation", "11 profiles; schemas; 24 tests"],
     ], [88, 257, 135], font_size=6.2))
     story.append(Paragraph("Interview discussion path", style_map["h2"]))
     story.append(make_table([
@@ -1122,7 +1122,7 @@ def build_korean_report_story(style_map):
         ["플랫폼 구조", "생명주기와 장애 범위에 따라 상태와 책임을 분리", "15개 모듈, 3개 환경, 상태 분리 구조"],
         ["EKS 운영", "구축 이후의 로그·용량·장애·복구 기준을 배포 조건으로 관리", "Terraform 객체, 현재/목표 표, 운영 점검표"],
         ["보안과 거버넌스", "권한과 정책 변경은 독립 검토와 사람 승인 뒤에 실행", "SCP, IAM, KMS, 네트워크 통제와 잔여 위험 검토"],
-        ["AI 에이전트", "즉시 자율 운영하지 않고 질문·증적·검토부터 표준화", "10개 역할, 요청 양식, 읽기 전용 장애 분석 최소 기능 구현"],
+        ["AI 에이전트", "즉시 자율 운영하지 않고 질문·증적·검토부터 표준화", "11개 역할, 요청 양식, 읽기 전용 장애 분석 최소 기능 구현"],
     ], [95, 245, 140], font_size=6.9))
     report_section(story, style_map, "현재 도달 수준")
     story.append(make_table([

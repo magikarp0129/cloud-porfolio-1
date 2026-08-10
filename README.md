@@ -4,6 +4,36 @@ Terraform 기반으로 엔터프라이즈 클라우드 구축 환경을 설계�
 
 이 저장소의 목적은 단순히 Terraform 리소스를 만드는 것이 아니라, 실제 기업 클라우드 플랫폼 팀이 고려해야 하는 아키텍처, 보안, 모니터링, 알람, FinOps, 운영 프로세스, 멀티 에이전트 협업 방식을 하나의 구축 사례로 정리하는 것입니다.
 
+## 목차
+
+- [1. Project Goal](#project-goal)
+- [2. Target Scope](#target-scope)
+  - [2.1 AWS 클라우드 및 네트워크 설계](#scope-aws-network)
+  - [2.2 Terraform과 IaC 설계](#scope-terraform-iac)
+  - [2.3 EKS 및 Kubernetes Platform 설계](#scope-eks-platform)
+  - [2.4 Monitoring 및 Observability 설계](#scope-observability)
+  - [2.5 Operations 설계](#scope-operations)
+  - [2.6 Security, Governance 및 Workforce Identity 설계](#scope-security-governance-identity)
+  - [2.7 FinOps 및 Cost Governance 설계](#scope-finops)
+  - [2.8 AI Platform 및 Multi-Agent 설계](#scope-ai-agent)
+  - [2.9 Documentation 및 Validation 설계](#scope-documentation-validation)
+- [3. Repository Layout](#repository-layout)
+- [4. Recommended Build Order](#recommended-build-order)
+- [5. Multi-Agent Operating Model](#multi-agent-operating-model)
+- [6. Agent Responsibilities](#agent-responsibilities)
+- [7. Target Cloud Architecture](#target-cloud-architecture)
+- [8. Terraform Implementation Strategy](#terraform-implementation-strategy)
+- [9. Monitoring and Alerting](#monitoring-and-alerting)
+- [10. Operations Strategy](#operations-strategy)
+- [11. FinOps Strategy](#finops-strategy)
+- [12. Security and Governance](#security-and-governance)
+- [13. PDF 포트폴리오 구성](#pdf-portfolio)
+- [14. 현재 상태](#current-status)
+- [15. 다음 구현 단계](#next-steps)
+- [16. Definition of Done](#definition-of-done)
+
+<a id="project-goal"></a>
+
 ## 1. Project Goal
 
 이 포트폴리오는 다음 질문에 답할 수 있어야 합니다.
@@ -19,11 +49,15 @@ Terraform 기반으로 엔터프라이즈 클라우드 구축 환경을 설계�
 - 폐쇄망 엔지니어와 개발자가 Corporate SSO와 IAM Identity Center를 통해 AWS account에 어떻게 접근할 것인가?
 - 최종 결과를 PDF 포트폴리오로 어떻게 정리할 것인가?
 
+<a id="target-scope"></a>
+
 ## 2. Target Scope
 
 초기 버전은 AWS 기준으로 작성합니다. 이후 Azure 또는 GCP 버전으로 확장할 수 있습니다.
 
 구축 범위는 설계 영역별로 다음과 같이 나눕니다.
+
+<a id="scope-aws-network"></a>
 
 ### 2.1 AWS 클라우드 및 네트워크 설계
 
@@ -33,6 +67,8 @@ Terraform 기반으로 엔터프라이즈 클라우드 구축 환경을 설계�
 - IPAM, Transit Gateway, RAM과 서비스 간 routing domain
 - Compute workload 배포 구조와 dev/stg/prod 환경 분리
 
+<a id="scope-terraform-iac"></a>
+
 ### 2.2 Terraform과 IaC 설계
 
 - Organization, Landing Zone, service, environment와 platform root 분리
@@ -40,6 +76,8 @@ Terraform 기반으로 엔터프라이즈 클라우드 구축 환경을 설계�
 - remote state, state ownership과 적용 순서
 - 환경별 variable과 promotion 전략
 - format, validate, plan review와 protected CI/CD 승인 경계
+
+<a id="scope-eks-platform"></a>
 
 ### 2.3 EKS 및 Kubernetes Platform 설계
 
@@ -49,6 +87,8 @@ Terraform 기반으로 엔터프라이즈 클라우드 구축 환경을 설계�
 - EKS Day-2 운영: 로그, QoS, 용량, 가용성, backup, upgrade와 장애 대응
 - HPA, KEDA, Cluster Autoscaler/Karpenter와 PDB ownership 경계
 
+<a id="scope-observability"></a>
+
 ### 2.4 Monitoring 및 Observability 설계
 
 - CloudWatch, Prometheus와 Grafana 기반 observability stack
@@ -56,6 +96,8 @@ Terraform 기반으로 엔터프라이즈 클라우드 구축 환경을 설계�
 - Warning/Critical threshold, 지속 시간과 missing-data policy
 - EKS control plane, node/runtime와 application signal 수집
 - Mimir, OpenTelemetry와 custom metric 확장 구조
+
+<a id="scope-operations"></a>
 
 ### 2.5 Operations 설계
 
@@ -65,6 +107,8 @@ Terraform 기반으로 엔터프라이즈 클라우드 구축 환경을 설계�
 - Package repository, container image와 artifact 관리
 - Linux, EKS와 AWS 읽기 전용 점검, runbook과 정기 운영 보고
 
+<a id="scope-security-governance-identity"></a>
+
 ### 2.6 Security, Governance 및 Workforce Identity 설계
 
 - IAM least privilege, security baseline과 encryption
@@ -72,6 +116,8 @@ Terraform 기반으로 엔터프라이즈 클라우드 구축 환경을 설계�
 - network segmentation, WAF, threat detection과 audit logging
 - Corporate IdP, IAM Identity Center와 permission set 기반 workforce access
 - 폐쇄망 Console/CLI, JIT access와 production 변경 승인
+
+<a id="scope-finops"></a>
 
 ### 2.7 FinOps 및 Cost Governance 설계
 
@@ -81,6 +127,8 @@ Terraform 기반으로 엔터프라이즈 클라우드 구축 환경을 설계�
 - TGW, endpoint, data transfer와 observability 비용 관리
 - baseline, actual billing과 accountable sign-off 기반 절감 효과 검증
 
+<a id="scope-ai-agent"></a>
+
 ### 2.8 AI Platform 및 Multi-Agent 설계
 
 - Architecture, Terraform, Security, Monitoring 등 역할별 Agent 운영 모델
@@ -89,6 +137,8 @@ Terraform 기반으로 엔터프라이즈 클라우드 구축 환경을 설계�
 - AI token usage, latency, error와 estimated cost dashboard
 - request, evidence, report와 audit artifact의 `request_id`/`trace_id` 연결
 
+<a id="scope-documentation-validation"></a>
+
 ### 2.9 Documentation 및 Validation 설계
 
 - README, domain 문서와 PDF 포트폴리오의 canonical ownership
@@ -96,6 +146,8 @@ Terraform 기반으로 엔터프라이즈 클라우드 구축 환경을 설계�
 - Terraform, Agent contract, monitoring policy와 운영 스크립트 자동 검증
 - 현재 구현, 목표 구조와 production evidence를 구분하는 문서 체계
 - PDF 포트폴리오 생성과 전체 페이지 시각 검수
+
+<a id="repository-layout"></a>
 
 ## 3. Repository Layout
 
@@ -112,6 +164,7 @@ Terraform 기반으로 엔터프라이즈 클라우드 구축 환경을 설계�
 │   ├── operator-guide.md
 │   ├── adoption-scenarios.md
 │   ├── request-templates/
+│   ├── platform-manager-agent.md
 │   ├── architecture-agent.md
 │   ├── terraform-agent.md
 │   ├── governance-agent.md
@@ -222,6 +275,8 @@ Terraform 기반으로 엔터프라이즈 클라우드 구축 환경을 설계�
 | 운영 스크립트와 검증 명령 | [운영 및 검증 스크립트](scripts/README.md) |
 | 현재 포트폴리오 PDF 원고 | [portfolio-presentation.md](docs/portfolio-presentation.md) |
 
+<a id="recommended-build-order"></a>
+
 ## 4. Recommended Build Order
 
 1. `AGENTS.md`에서 에이전트 역할과 협업 규칙을 정의합니다.
@@ -244,12 +299,45 @@ Terraform 기반으로 엔터프라이즈 클라우드 구축 환경을 설계�
 18. Reviewer가 코드, diagram, README, 현재/목표와 검증 증거의 일관성을 확인합니다.
 19. 최종적으로 `docs/portfolio-presentation.md`를 PDF로 빌드하고 전체 페이지를 검수합니다.
 
+<a id="multi-agent-operating-model"></a>
+
 ## 5. Multi-Agent Operating Model
 
-이 프로젝트는 하나의 에이전트가 모든 작업을 처리하는 방식이 아니라, 목적별 전문 에이전트가 역할을 나누는 구조를 가정합니다.
+이 프로젝트는 하나의 에이전트가 모든 작업을 처리하는 방식이 아니라, Manager가 요청과 handoff를 조정하고 기능별 전문 조직이 설계·구현·운영·검토를 담당하는 구조입니다. Cloud Platform Owner가 최종 책임을 지고 Agent는 승인된 범위에서 분석과 artifact 작성을 지원합니다.
+
+### Agent 조직도
+
+```text
+Cloud Platform Owner / Designated Approver (Human)
+└── Cloud Platform Manager Agent
+    ├── Strategy, Architecture and Governance Team
+    │   ├── Architecture Agent (Domain Lead)
+    │   ├── Governance Agent
+    │   ├── Security Agent
+    │   └── FinOps Agent
+    ├── Platform Engineering and Delivery Team
+    │   ├── Terraform Agent (Domain Lead)
+    │   └── CI/CD Agent
+    ├── Reliability and Operations Team
+    │   ├── Operations Agent (Domain Lead)
+    │   └── Monitoring Agent
+    └── Assurance and Knowledge Team
+        ├── Reviewer Agent (Independent Assurance Lead)
+        └── Documentation Agent
+```
+
+| 조직 | 책임 | Domain Lead | 구성 Agent |
+| --- | --- | --- | --- |
+| Strategy, Architecture and Governance | 목표 구조, 조직 정책, 보안과 비용 전략 | Architecture | Governance, Security, FinOps |
+| Platform Engineering and Delivery | Terraform 구현, state와 delivery gate | Terraform | CI/CD |
+| Reliability and Operations | 장애, 관측성, backup, patch와 lifecycle | Operations | Monitoring |
+| Assurance and Knowledge | 독립 검토, 기록, runbook과 portfolio | Reviewer | Documentation |
+
+Cloud Platform Manager Agent는 cross-domain 요청의 scope, workstream, dependency, 담당 Agent와 완료 조건을 정리합니다. 전문 판단을 덮어쓰거나 최종 승인하지 않으며 production 변경 권한도 없습니다. Security Agent와 Reviewer Agent는 unresolved finding을 Manager를 거치지 않고 Security Owner 또는 designated approver에게 직접 escalation할 수 있습니다.
 
 | Agent | Primary Responsibility | Main Outputs |
 | --- | --- | --- |
+| Cloud Platform Manager Agent | 요청 triage, 업무 분해, 조직 배정, dependency·handoff·상태 통합 | work breakdown, RACI, routing plan, consolidated status, escalation packet |
 | Architecture Agent | 요구사항, 전체 아키텍처, module boundary 설계 | architecture decision, target architecture |
 | Terraform Agent | Terraform 코드 작성, 모듈화, 환경 분리 | `terraform/modules`, `terraform/environments`, `terraform/organization` |
 | Governance Agent | AWS Organizations, OU, SCP, 정책 준수, 변경 승인 | governance model, SCP catalog, compliance checklist |
@@ -263,16 +351,16 @@ Terraform 기반으로 엔터프라이즈 클라우드 구축 환경을 설계�
 
 협업 흐름은 다음과 같습니다.
 
-1. Architecture Agent가 요구사항, target architecture, module boundary를 정의합니다.
-2. Governance Agent가 AWS Organizations, OU, SCP, 변경 승인 기준을 정의합니다.
-3. Terraform Agent가 organization root, workload environment root, reusable module 구조를 작성합니다.
-4. Security Agent가 IAM, 네트워크, 암호화, 접근 제어를 검토합니다.
-5. Monitoring Agent가 관측성 구조와 알람 정책을 추가합니다.
-6. Operations Agent가 백업, 스케줄, 패치, CVE/EOS 운영 기준을 정의합니다.
-7. FinOps Agent가 태깅, 예산, 비용 리포트 구조를 검토합니다.
-8. CI/CD Agent가 Terraform 검증과 배포 흐름을 자동화합니다.
-9. Reviewer Agent가 전체 산출물을 실무 품질 관점에서 검토합니다.
-10. Documentation Agent가 README와 PDF 포트폴리오 내용을 정리합니다.
+1. Cloud Platform Manager Agent가 요청을 접수하고 단일 domain인지 cross-domain인지 분류합니다.
+2. cross-domain 요청이면 workstream, Domain Lead, supporting Agent, dependency와 human owner를 지정합니다.
+3. Architecture Agent가 target architecture와 module boundary를 정의하고 Governance, Security, FinOps Agent가 전략 제약을 병렬 검토합니다.
+4. Terraform Agent와 CI/CD Agent가 코드, state, 검증과 promotion gate를 준비합니다.
+5. Operations Agent와 Monitoring Agent가 운영 기준, alert와 post-change evidence를 연결합니다.
+6. Security와 Governance Agent가 구현 결과의 guardrail과 정책 준수를 확인합니다.
+7. Reviewer Agent가 독립 검토하고 Documentation Agent가 decision과 운영 문서를 정리합니다.
+8. Manager Agent가 완료 조건, handoff, blocker와 evidence를 통합합니다.
+9. Cloud Platform Owner 또는 designated approver가 최종 판단합니다.
+10. protected CI/CD 또는 승인된 human operator만 실제 변경을 실행합니다.
 
 실제 운영에서는 각 Agent를 별도 AWS 관리자로 실행하지 않습니다. 중앙 AI Gateway와 Agent Runtime에 역할별 profile로 등록하고 internal portal, `agentctl` CLI, pull request command 또는 승인된 CI/CD API로 명령합니다.
 
@@ -280,10 +368,12 @@ Terraform 기반으로 엔터프라이즈 클라우드 구축 환경을 설계�
 
 1. 사용자가 Corporate IdP로 인증하고 Agent, task, repository, environment, change ticket을 제출합니다.
 2. AI Gateway가 identity, model/tool allowlist, data classification, token/cost quota를 검증합니다.
-3. Agent는 범위가 제한된 short-lived credential로 read, draft, validation, plan 작업만 수행합니다.
-4. 코드와 정책 변경은 pull request 또는 review report로 제출합니다.
-5. `prod` 배포는 plan artifact와 사람 승인을 검증한 protected CI/CD만 수행합니다.
-6. model 호출, tool call, 승인, 결과는 `request_id`와 `trace_id`로 중앙 감사합니다.
+3. cross-domain 요청은 Manager Agent가 workstream, Domain Lead, dependency와 review gate를 정의합니다.
+4. 전문 Agent는 각 profile의 제한된 short-lived credential로 read, draft, validation, plan 작업만 수행합니다.
+5. Reviewer가 독립 finding을 작성하고 Manager가 완료 상태와 handoff를 통합합니다.
+6. 코드와 정책 변경은 pull request 또는 review report로 제출합니다.
+7. `prod` 배포는 plan artifact와 사람 승인을 검증한 protected CI/CD만 수행합니다.
+8. model 호출, tool call, handoff, 승인과 결과는 `request_id`와 `trace_id`로 중앙 감사합니다.
 
 Agent 명령 계약과 역할별 runtime 권한은 [Enterprise AI Platform and Agent Operations](docs/ai-platform.md), 사용자 SSO와 account 접근은 [Enterprise Workforce Identity and AWS Account Access](docs/identity-access.md)를 기준으로 합니다.
 
@@ -298,6 +388,7 @@ Agent 활용 성과는 호출 수나 생성 코드량이 아니라 `Agent capabi
 운영 원칙:
 
 - Agent에게 secret, access key, customer raw data를 입력하지 않습니다.
+- Manager Agent는 다른 Agent의 권한을 상속하거나 사람 승인과 전문 검토를 대행하지 않습니다.
 - Agent는 `prod`에서 직접 `apply`, restart, stop, delete, failover를 수행하지 않습니다.
 - 중요한 상태는 대화 기억이 아니라 ticket, pull request, repository, plan artifact에 저장합니다.
 - 장애 복구와 영구 infrastructure 수정은 별도 ticket으로 관리합니다.
@@ -338,12 +429,12 @@ rollback_owner: platform-oncall
 
 | Workflow | Agent sequence |
 | --- | --- |
-| Infrastructure change | Architecture/Governance -> Terraform -> Security -> Reviewer -> CI/CD -> Monitoring |
-| Incident response | Monitoring -> Operations -> Security if needed -> Terraform permanent fix -> Reviewer |
-| CVE/EOS response | Security -> Operations -> Terraform/CI-CD -> Reviewer |
-| Backup restore | Operations -> Security -> Monitoring -> Reviewer -> Human execution |
-| FinOps review | FinOps -> Operations -> Terraform -> Reviewer -> FinOps owner |
-| Alarm change | Monitoring -> Service owner -> Operations -> Reviewer -> CI/CD |
+| Infrastructure change | Manager routing -> Architecture/Governance -> Terraform -> Security -> Reviewer -> Manager status -> Human approval -> CI/CD -> Monitoring |
+| Incident response | Human Incident Commander -> Manager coordination -> Monitoring -> Operations -> Security if needed -> Terraform permanent fix -> Reviewer |
+| CVE/EOS response | Manager routing -> Security -> Operations -> Terraform/CI-CD -> Reviewer -> Human approval |
+| Backup restore | Manager routing -> Operations -> Security -> Monitoring -> Reviewer -> Human execution |
+| FinOps review | Manager routing -> FinOps -> Operations -> Terraform -> Reviewer -> FinOps owner |
+| Alarm change | Manager routing -> Monitoring -> Service owner -> Operations -> Reviewer -> CI/CD |
 
 Production 승인 기준:
 
@@ -365,7 +456,24 @@ Agent handoff에는 `request_id`, ticket, environment, 확인된 사실, 가설,
 
 운영자는 Agent에게 credential 출력, production 직접 변경, Terraform state 강제 수정, audit/security service 비활성화, 검증 없는 SCP/WAF/IAM 완화, alarm suppression, RI/Savings Plans 구매, protected branch 우회를 요청하지 않습니다.
 
+<a id="agent-responsibilities"></a>
+
 ## 6. Agent Responsibilities
+
+### Cloud Platform Manager Agent
+
+Cloud Platform Manager Agent는 여러 전문 영역이 포함된 요청의 intake, 업무 분해, 조직 배정과 handoff를 관리합니다.
+
+주요 책임:
+
+- 요청의 목적, scope, environment, ticket과 완료 조건 확인
+- workstream, Domain Lead, supporting Agent와 dependency 정의
+- Security와 Reviewer의 독립 review path 보존
+- handoff artifact, blocker와 전체 진행 상태 통합
+- 필요한 human decision과 approval gate escalation
+- 완료, 부분 완료와 미확인 항목을 분리한 status report 작성
+
+Manager Agent는 domain 결론을 임의로 변경하거나 production 변경을 승인·실행하지 않습니다. 상세 역할 계약은 [Cloud Platform Manager Agent](agents/platform-manager-agent.md)를 기준으로 합니다.
 
 ### Architecture Agent
 
@@ -516,6 +624,8 @@ Documentation Agent는 README, 세부 문서, PDF 포트폴리오 산출물을 �
 - 아키텍처, Terraform 구조, 에이전트 역할, 운영 전략을 설명 가능한 형태로 정리
 - 변경 이력과 향후 개선 로드맵 문서화
 
+<a id="target-cloud-architecture"></a>
+
 ## 7. Target Cloud Architecture
 
 AWS workload VPC는 인터넷 경계를 직접 갖지 않는 private spoke 구조로 설계합니다.
@@ -633,6 +743,8 @@ State 전략:
 | `organization/organization.tfstate` | AWS Organizations, OU, SCP, Tag Policy | 조직 전체 영향 정책을 workload 배포와 격리 |
 | `workloads/<env>/foundation.tfstate` | VPC, IAM, security, logs, backup, budget, EKS | AWS resource lifecycle과 계정 권한 경계 관리 |
 | `workloads/<env>/platform.tfstate` | Helm, Istio, Prometheus, Grafana, namespace policy | Kubernetes API와 chart upgrade lifecycle 분리 |
+
+<a id="terraform-implementation-strategy"></a>
 
 ## 8. Terraform Implementation Strategy
 
@@ -876,6 +988,8 @@ module "inspection_routes" {
 
 전체 설계와 migration 절차는 [Terraform Change Management](docs/terraform-change-management.md)에 정리되어 있습니다.
 
+<a id="monitoring-and-alerting"></a>
+
 ## 9. Monitoring and Alerting
 
 운영자가 장애, 성능 저하, 비용 이상 징후를 빠르게 인지하고 대응할 수 있도록 로그, 메트릭, 알람, 대시보드를 설계합니다.
@@ -1008,6 +1122,8 @@ VPC Flow Logs 기반 네트워크 트러블슈팅:
 | 외부 API 호출 실패 | subnet → TGW → 중앙 egress route와 `REJECT` 확인 |
 | 특정 포트만 실패 | destination port 기준 NACL/security group 확인 |
 | 비용 급증 | TGW, 중앙 egress, cross-AZ와 internet egress traffic volume 확인 |
+
+<a id="operations-strategy"></a>
 
 ## 10. Operations Strategy
 
@@ -1265,6 +1381,8 @@ Istio 및 service mesh 전략:
 - ingress gateway, virtual service, destination rule, authorization policy는 git 기반으로 관리합니다.
 - mesh metric은 Prometheus와 Grafana dashboard에 연결합니다.
 
+<a id="finops-strategy"></a>
+
 ## 11. FinOps Strategy
 
 클라우드 비용을 사후 정산 대상이 아니라 설계, 배포, 운영 단계에서 지속적으로 관리되는 품질 지표로 취급합니다.
@@ -1335,6 +1453,8 @@ RI 및 Savings Plans 전략:
 - sandbox 리소스는 야간 및 주말 자동 중지를 기본값으로 둡니다.
 - idle load balancer, unattached EBS, unused EIP는 주간 리포트로 정리합니다.
 
+<a id="security-and-governance"></a>
+
 ## 12. Security and Governance
 
 보안은 나중에 붙이는 기능이 아니라 Terraform 설계 단계에서 기본값으로 적용합니다.
@@ -1387,6 +1507,8 @@ Production 적용 전 남은 gate:
 
 상세 검토표는 [Terraform Security Review](docs/security-review.md)에 정리되어 있습니다.
 
+<a id="pdf-portfolio"></a>
+
 ## 13. PDF 포트폴리오 구성
 
 최종 PDF는 루트 README의 서술 흐름을 기준으로 작성합니다. 구현값만 빠르게 나열하지 않고 `왜 필요한가 → 어떤 경계로 설계했는가 → 무엇을 구현했는가 → 무엇이 남았는가 → 어떤 증거가 있어야 완료인가`를 순서대로 읽을 수 있게 구성합니다.
@@ -1412,7 +1534,7 @@ Production 적용 전 남은 gate:
 PDF에 포함할 핵심 산출물:
 
 - 프로젝트가 답하는 질문과 Current/Defined/Target/Evidence 구분
-- 저장소 탐색 순서, Agent 역할과 Human-led 승인 경계
+- 저장소 탐색 순서, Manager와 4개 기능 조직, Agent 역할과 Human-led 승인 경계
 - IPAM, TGW, RAM과 서비스 VPC subnet 구성
 - Terraform state, 디렉터리와 module 구성
 - CloudWatch, Prometheus, Grafana와 주요 알람 기준
@@ -1434,13 +1556,15 @@ python3 scripts/pdf/build/build_portfolio_presentation_pdf.py
 python3 scripts/pdf/verify/verify_portfolio_pdf.py enterprise-cloud-portfolio.pdf
 ```
 
-최종 산출물은 최상위 `enterprise-cloud-portfolio.pdf`입니다. 검수 스크립트는 PDF 텍스트 계층, 15개 장의 목차·책갈피, 빈 페이지, 페이지 수와 핵심 경계를 검사하고 시스템 임시 경로에 Poppler 페이지 PNG와 한눈에 보는 이미지를 생성합니다. 현재 PDF는 A4 20페이지 README 기반 독자판입니다.
+최종 산출물은 최상위 `enterprise-cloud-portfolio.pdf`입니다. 검수 스크립트는 PDF 텍스트 계층, 15개 장의 목차·책갈피, 빈 페이지, 페이지 수와 핵심 경계를 검사하고 시스템 임시 경로에 Poppler 페이지 PNG와 한눈에 보는 이미지를 생성합니다. 현재 PDF는 A4 21페이지 README 기반 독자판입니다.
+
+<a id="current-status"></a>
 
 ## 14. 현재 상태
 
 현재 반영된 내용:
 
-- 멀티 에이전트 역할 정의
+- Cloud Platform Manager와 4개 기능 조직을 포함한 11개 Agent 역할·보고선 정의
 - Architecture, Governance, CI/CD, Reviewer, Documentation Agent 추가
 - Operations Agent 추가
 - Agent Runtime 명령 및 production 승인 경계 정의
@@ -1477,8 +1601,10 @@ python3 scripts/pdf/verify/verify_portfolio_pdf.py enterprise-cloud-portfolio.pd
 - Monitoring Agent request/security/read-only boundary unit test 25개 통과
 - `examples/` fixture, `schemas/` machine contract와 `reports/` 월간·장애 보고서 양식·simulation 예시의 역할 분리 및 CI smoke 검증
 - 보안 검토와 production 적용 전 residual risk 문서화
-- A4 20페이지 README 기반 한국어 포트폴리오 생성과 전체 페이지 시각 검수 완료
+- A4 21페이지 README 기반 한국어 포트폴리오 생성과 전체 페이지 시각 검수 완료
 - Agent 선택, 요청, workflow, 승인, handoff, session 재개를 포함한 운영자 사용설명서 작성
+
+<a id="next-steps"></a>
 
 ## 15. 다음 구현 단계
 
@@ -1496,6 +1622,8 @@ python3 scripts/pdf/verify/verify_portfolio_pdf.py enterprise-cloud-portfolio.pd
 10. `ai-observability` module에 token metric, usage lake, dashboard 추가
 11. Trivy/Checkov 및 OPA 정책 검사를 CI release gate에 추가
 12. README와 실제 AWS 실행 결과를 기반으로 PDF를 지속 업데이트
+
+<a id="definition-of-done"></a>
 
 ## 16. Definition of Done
 

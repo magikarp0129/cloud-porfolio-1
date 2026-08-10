@@ -75,6 +75,8 @@ output_contract: pull-request-or-review-report
 
 권한은 Agent 이름이 아니라 매 요청의 사용자 identity, repository, environment, ticket, tool에 대해 교차 검증합니다. Agent profile 변경도 application code와 동일하게 pull request, security review, version pinning을 적용합니다.
 
+Cloud Platform Manager Agent는 cross-domain orchestration profile로 등록하되 `request_read`, `artifact_index`, `routing_plan`, `handoff_write`처럼 조정에 필요한 도구만 허용합니다. Manager가 Terraform, AWS, Kubernetes, CI/CD와 billing tool 권한을 하위 Agent로부터 상속하지 않으며, 전문 Agent 호출마다 해당 profile과 사용자 entitlement를 다시 검증합니다. `ready_for_approval`은 workflow 상태일 뿐 사람 승인 token이 아닙니다.
+
 ## Command Channels and Contract
 
 운영 채널:

@@ -125,7 +125,7 @@ cloud-portfolio/
 
 AI 에이전트의 역할과 운영자가 요청하는 방식을 정의합니다.
 
-- `*-agent.md`: Architecture, Terraform, Governance, Security, Monitoring, Operations, FinOps, CI/CD, Reviewer, Documentation 역할의 책임과 산출물
+- `*-agent.md`: Platform Manager와 Architecture, Terraform, Governance, Security, Monitoring, Operations, FinOps, CI/CD, Reviewer, Documentation 역할의 책임과 산출물
 - `operator-guide.md`: 요청, 승인, 인계, 세션 재개와 보고 절차
 - `adoption-scenarios.md`: 읽기 전용 자문에서 제한 위임까지의 단계적 도입 조건
 - `request-templates/`: 운영자가 역할별 질문과 범위를 빠짐없이 작성하도록 돕는 YAML 양식

@@ -38,7 +38,7 @@
 
 ### 4. Multi-Agent Operating Model
 
-- 10개 역할과 산출물
+- Cloud Platform Manager, 4개 기능 조직과 총 11개 역할의 보고·승인 구조
 - Human-led, Agent-assisted 실행 흐름
 - read/draft/plan/review와 protected CI/CD 경계
 

@@ -4,7 +4,7 @@
 
 ## Usage
 
-1. 요청 목적에 맞는 primary Agent 하나를 선택합니다.
+1. 단일 domain 요청은 전문 Agent, cross-domain 요청은 Platform Manager를 primary로 선택합니다.
 2. 해당 YAML을 ticket 또는 승인된 portal의 요청 양식에 복사합니다.
 3. `<...>` 값을 실제 값으로 바꾸고 불필요한 선택 항목은 제거합니다.
 4. secret, credential, access key, raw customer data는 입력하지 않습니다.
@@ -17,6 +17,7 @@
 
 | Template | Default use | Default maturity | Cloud mutation |
 | --- | --- | --- | --- |
+| [platform-manager.yaml](platform-manager.yaml) | cross-domain triage, work breakdown, RACI와 handoff | Level 1 | 금지 |
 | [architecture.yaml](architecture.yaml) | architecture option과 ADR 초안 | Level 1-2 | 금지 |
 | [terraform.yaml](terraform.yaml) | Terraform patch와 plan 검토 | Level 2 | 금지 |
 | [governance.yaml](governance.yaml) | OU/SCP/tag policy 설계와 simulation | Level 1-2 | 금지 |
@@ -44,6 +45,6 @@
 
 ## Runtime Contract Boundary
 
-현재 Monitoring Agent CLI는 [incident request JSON schema](../../schemas/incident-request.schema.json)와 같은 계약을 `contracts.py`에서 방어적으로 다시 검증합니다. CI smoke test는 Schema의 required field·enum과 runtime contract가 어긋나지 않는지 확인합니다. `monitoring.yaml`은 운영자가 문제를 구조화하는 상위 intake이며 CLI에 그대로 전달하지 않습니다. production runtime 요청은 Gateway가 Draft 2020-12 Schema validation을 거쳐 생성하고, 운영자는 생성된 environment, scope, query IDs를 실행 전에 확인해야 합니다.
+현재 Monitoring Agent CLI는 [incident request JSON schema](../../schemas/incident-request.schema.json)와 같은 계약을 `contracts.py`에서 방어적으로 다시 검증합니다. CI smoke test는 Schema의 required field·enum과 runtime contract가 어긋나지 않는지 확인합니다. `platform-manager.yaml`을 포함한 역할별 YAML은 운영자가 문제를 구조화하는 상위 intake이며 CLI에 그대로 전달하지 않습니다. Manager Agent runtime과 중앙 orchestration은 아직 Target입니다. production runtime 요청은 Gateway가 Draft 2020-12 Schema validation을 거쳐 생성하고, 운영자는 생성된 environment, scope, query IDs를 실행 전에 확인해야 합니다.
 
 전체 도입 단계와 사람/Agent 책임은 [Human-Led Agent Adoption Scenarios](../adoption-scenarios.md)를 따릅니다.

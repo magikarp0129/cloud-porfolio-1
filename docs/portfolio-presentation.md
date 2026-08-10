@@ -98,7 +98,7 @@ AWS Organizations
 
 | 영역 | 현재 저장소에서 확인 가능 | 아직 목표 단계 |
 |---|---|---|
-| Agent | 10개 역할, request template, operator guide, Monitoring Agent MVP | 사내 portal, 중앙 AI Gateway, live connector |
+| Agent | Manager 1개와 전문 역할 10개, request template, operator guide, Monitoring Agent MVP | 사내 portal, 중앙 AI Gateway, live connector |
 | Monitoring | 11개 alert policy와 10개 Prometheus query catalog | rule 배포, 자동 severity 평가, on-call route |
 | Terraform | Organization, Landing Zone, 서비스 VPC, 환경과 플랫폼 root | 실제 계정 plan/apply와 production 운영 증적 |
 | EKS | private cluster, managed node, Istio, quota, Prometheus/Grafana | autoscaler, workload HPA/PDB, central Mimir |
@@ -173,10 +173,35 @@ README는 프로젝트 전체의 단일 진입점입니다. 세부 문서는 주
 
 초기 운영 모델은 Agent에게 production을 위임하는 구조가 아니라 **Human-led, Agent-assisted** 방식입니다. Agent는 승인된 정보 조회, 문서·patch·plan·review artifact 작성과 검증을 지원하고, 운영자가 근거를 확인해 최종 판단합니다.
 
+## 조직과 보고선
+
+```text
+Cloud Platform Owner / Designated Approver (Human)
+└── Cloud Platform Manager Agent
+    ├── Strategy, Architecture and Governance
+    │   └── Architecture · Governance · Security · FinOps
+    ├── Platform Engineering and Delivery
+    │   └── Terraform · CI/CD
+    ├── Reliability and Operations
+    │   └── Operations · Monitoring
+    └── Assurance and Knowledge
+        └── Reviewer · Documentation
+```
+
+| 조직 | Domain Lead | 책임 |
+|---|---|---|
+| Strategy, Architecture and Governance | Architecture | 목표 구조, 조직 정책, 보안과 비용 전략 |
+| Platform Engineering and Delivery | Terraform | module/state 구현과 delivery gate |
+| Reliability and Operations | Operations | 장애, 관측성, backup, patch와 lifecycle |
+| Assurance and Knowledge | Reviewer | 독립 검토, 기록, runbook과 portfolio |
+
+Manager Agent는 cross-domain 요청의 업무 분해, 조직 배정, dependency, handoff와 상태 통합을 담당합니다. 전문 결론이나 Reviewer finding을 덮어쓰지 않으며 승인·배포 권한이 없습니다. Security와 Reviewer는 unresolved finding을 accountable human에게 직접 escalation할 수 있습니다.
+
 ## 역할과 산출물
 
 | Agent | 책임 | 주요 산출물 |
 |---|---|---|
+| Platform Manager | triage, 업무 분해, routing과 상태 통합 | work breakdown, RACI, escalation packet |
 | Architecture | 요구사항과 module boundary | architecture decision, target architecture |
 | Terraform | 코드, module, root와 state 분리 | Terraform patch, plan 요약 |
 | Governance | Organizations, OU, SCP, 승인 | governance model, compliance checklist |
@@ -193,10 +218,12 @@ README는 프로젝트 전체의 단일 진입점입니다. 세부 문서는 주
 ```text
 Operator request
   → Corporate identity와 요청 계약 검증
-  → Agent profile, model/tool, token/cost quota 적용
-  → short-lived credential로 read/draft/plan/review
+  → Manager가 cross-domain workstream과 Domain Lead 배정
+  → Agent별 model/tool, token/cost quota 적용
+  → 전문 Agent가 read/draft/plan/review 수행
   → evidence, patch, plan 또는 review artifact 생성
-  → 사람과 Reviewer 검토
+  → Reviewer 독립 검토와 Manager 상태 통합
+  → accountable human 승인
   → protected CI/CD가 승인된 변경만 배포
   → request_id와 trace_id로 감사 연결
 ```
@@ -214,7 +241,7 @@ Agent mode는 명시적으로 제한됩니다.
 
 ## 현재 실행 가능한 Agent 범위
 
-현재 구현은 Monitoring Agent의 read-only incident evidence collector입니다. 고정 query catalog, URL/DNS와 runtime identity 검증, secret/PII redaction, 보고서와 audit record 생성을 포함합니다. Corporate IdP, 중앙 AI Gateway, portal과 live connector는 Target architecture입니다.
+현재 구현은 Monitoring Agent의 read-only incident evidence collector입니다. 고정 query catalog, URL/DNS와 runtime identity 검증, secret/PII redaction, 보고서와 audit record 생성을 포함합니다. Manager를 포함한 나머지 역할은 문서와 intake 계약이며, 중앙 orchestration, Corporate IdP, AI Gateway, portal과 live connector는 Target architecture입니다.
 
 \newpage
 
@@ -626,7 +653,7 @@ Organization, OU와 policy attachment 코드는 존재하지만 `aws_organizatio
 
 ## 현재 저장소 산출물
 
-- 10개 Agent 역할, 역할별 request template, operator guide와 adoption scenario
+- Manager 1개와 전문 Agent 10개, 4개 기능 조직, 역할별 request template과 operator guide
 - Monitoring Agent request, evidence, redaction, report와 audit 계약
 - Organizations, Landing Zone, 서비스 VPC 15개, 공통 환경과 platform root
 - Terraform module 디렉터리 19개 중 18개 구현

@@ -8,6 +8,8 @@ Agent는 운영자를 대신하는 AWS 관리자가 아닙니다. Agent는 정�
 
 현재 저장소에는 Monitoring Agent용 read-only incident evidence collector와 로컬 `agentctl` MVP가 구현되어 있습니다. 실제 AI Gateway, internal portal, Tool Broker와 model runtime은 아직 구현되지 않았습니다. 로컬 MVP의 사용 방법과 보안 경계는 [Read-Only Agent Incident Triage](../docs/agent-incident-triage.md)를 따르며, 이 문서의 operating model과 command contract는 모든 command channel에 공통 적용합니다.
 
+Cloud Platform Manager Agent는 여러 전문 영역이 필요한 요청을 분류하고 handoff를 조정하는 문서화된 역할입니다. 현재 실행 가능한 orchestration runtime은 아니며, 최종 책임과 승인은 Cloud Platform Owner 또는 designated approver에게 있습니다.
+
 초기 도입은 **Human-led, Agent-assisted**가 기본입니다. 운영자는 [역할별 요청 템플릿](request-templates/README.md)으로 질문하고 Agent는 근거, 선택지, 초안과 검증 항목을 제공합니다. 운영 권한은 업무별 증적과 통제 수준이 검증된 이후에만 단계적으로 확대하며, Agent 전체에 일괄 부여하지 않습니다. 단계별 기준과 실제 시나리오는 [Human-Led Agent Adoption Scenarios](adoption-scenarios.md)를 따릅니다.
 
 ## 2. Core Rules
@@ -19,6 +21,7 @@ Agent는 운영자를 대신하는 AWS 관리자가 아닙니다. Agent는 정�
 5. Agent 결과는 제안이며, 실행 전 담당자와 Reviewer의 검증이 필요합니다.
 6. 권한 성숙도는 Agent 이름이 아니라 use case와 environment 조합별로 관리합니다.
 7. 요청 템플릿은 범위를 구조화하는 intake이며 접근 권한, 승인 또는 실행 명령이 아닙니다.
+8. Manager Agent는 다른 Agent의 전문 판단, Security/Reviewer finding 또는 사람 승인을 덮어쓰지 않습니다.
 
 ## 3. Operator Prerequisites
 
@@ -37,8 +40,26 @@ Agent는 운영자를 대신하는 AWS 관리자가 아닙니다. Agent는 정�
 
 ## 4. Selecting an Agent
 
+### Organization and Reporting Model
+
+```text
+Cloud Platform Owner / Designated Approver (Human)
+└── Cloud Platform Manager Agent
+    ├── Strategy, Architecture and Governance
+    │   └── Architecture · Governance · Security · FinOps
+    ├── Platform Engineering and Delivery
+    │   └── Terraform · CI/CD
+    ├── Reliability and Operations
+    │   └── Operations · Monitoring
+    └── Assurance and Knowledge
+        └── Reviewer · Documentation
+```
+
+Manager Agent는 cross-domain 요청의 work breakdown과 routing을 담당합니다. 요청이 한 영역에 명확히 속하면 해당 전문 Agent를 바로 primary로 선택합니다. Security와 Reviewer는 독립 finding을 Manager가 아닌 accountable human에게 직접 escalation할 수 있습니다.
+
 | Operator need | Primary Agent | Supporting Agent | Expected output |
 | --- | --- | --- | --- |
+| 여러 조직이 필요한 요청 또는 owner가 불명확한 요청 | Cloud Platform Manager | Domain Leads, Reviewer | work breakdown, RACI, routing and escalation plan |
 | 신규 Landing Zone 또는 module boundary | Architecture | Governance, Security | ADR, architecture proposal |
 | Terraform 코드 작성 또는 수정 | Terraform | Security, Reviewer | patch, validation, plan summary |
 | OU, SCP, tag policy 변경 | Governance | Security, Reviewer | policy proposal, rollout plan |
@@ -50,7 +71,7 @@ Agent는 운영자를 대신하는 AWS 관리자가 아닙니다. Agent는 정�
 | 독립적인 위험 및 품질 검토 | Reviewer | Relevant domain Agent | review findings, release decision |
 | README, runbook, PDF 업데이트 | Documentation | All producing Agents | documentation patch |
 
-한 요청에서 primary Agent는 하나만 지정합니다. 다른 전문 영역이 필요하면 primary Agent가 handoff artifact를 만들고 supporting Agent가 독립적으로 검토합니다.
+한 요청에서 primary Agent는 하나만 지정합니다. Manager가 primary인 경우에도 각 workstream에는 하나의 domain primary를 별도로 지정합니다. 다른 전문 영역이 필요하면 primary Agent가 handoff artifact를 만들고 supporting Agent가 독립적으로 검토합니다.
 
 ## 5. Request Modes
 
@@ -140,17 +161,19 @@ stg EKS add-on upgrade 변경안을 작성하고 영향도를 분석해 주세�
 ## 9. Controlled Execution Flow
 
 1. 운영자가 ticket, environment, data classification, success criteria를 준비합니다.
-2. Primary Agent를 선택하고 `read`, `draft`, `plan`, `review` 중 하나를 지정합니다.
-3. AI Gateway가 identity, entitlement, model/tool allowlist, quota를 검증합니다.
-4. Agent가 가정, 조회 근거, 변경 범위와 blocker를 먼저 기록합니다.
-5. 변경이 필요하면 branch 또는 patch를 만들고 검증 결과를 첨부합니다.
-6. Security/Governance 등 supporting Agent가 전문 영역을 검토합니다.
-7. Reviewer Agent가 독립적으로 위험, 누락 테스트, rollback 가능성을 검토합니다.
-8. CI/CD Agent가 fmt, validate, policy scan, plan artifact를 생성합니다.
-9. 운영자와 designated approver가 ticket, plan hash, 비용 변화, rollback을 확인합니다.
-10. Protected CI/CD가 승인된 environment에 적용합니다.
-11. Monitoring Agent가 post-deployment metric과 alarm을 확인합니다.
-12. Documentation Agent가 README, runbook, decision log를 갱신합니다.
+2. 단일 domain이면 전문 Agent를, cross-domain이면 Cloud Platform Manager Agent를 primary로 선택합니다.
+3. Manager Agent가 필요한 경우 workstream, Domain Lead, dependency, review gate와 human owner를 지정합니다.
+4. AI Gateway가 identity, entitlement, model/tool allowlist, quota를 검증합니다.
+5. 각 Agent가 가정, 조회 근거, 변경 범위와 blocker를 먼저 기록합니다.
+6. 변경이 필요하면 branch 또는 patch를 만들고 검증 결과를 첨부합니다.
+7. Security/Governance 등 supporting Agent가 전문 영역을 검토합니다.
+8. Reviewer Agent가 독립적으로 위험, 누락 테스트, rollback 가능성을 검토합니다.
+9. CI/CD Agent가 fmt, validate, policy scan, plan artifact를 생성합니다.
+10. Manager Agent가 cross-domain 결과의 완료 여부, handoff와 unresolved blocker를 통합합니다.
+11. 운영자와 designated approver가 ticket, plan hash, 비용 변화, rollback을 확인합니다.
+12. Protected CI/CD가 승인된 environment에 적용합니다.
+13. Monitoring Agent가 post-deployment metric과 alarm을 확인합니다.
+14. Documentation Agent가 README, runbook, decision log를 갱신합니다.
 
 ## 10. Workflow: Infrastructure Change
 
@@ -166,7 +189,8 @@ stg EKS add-on upgrade 변경안을 작성하고 영향도를 분석해 주세�
 ### Agent sequence
 
 ```text
-Architecture/Governance -> Terraform -> Security -> Reviewer -> CI/CD -> Human approval -> Monitoring
+Manager routing -> Architecture/Governance -> Terraform -> Security -> Reviewer
+-> Manager status -> Human approval -> CI/CD execution -> Monitoring
 ```
 
 ### Required evidence
@@ -195,7 +219,8 @@ Agent는 incident commander가 아니며 사람의 의사 결정을 대체하지
 ### Agent sequence
 
 ```text
-Monitoring -> Operations -> Security if suspected -> Terraform for permanent fix -> Reviewer
+Human Incident Commander -> Manager coordination -> Monitoring -> Operations
+-> Security if suspected -> Terraform permanent fix -> Reviewer
 ```
 
 ### Operating procedure
@@ -231,7 +256,8 @@ INC-2026-0142, prod, API 5xx 급증을 분석해 주세요.
 ### Agent sequence
 
 ```text
-Security -> Operations -> Terraform/CI-CD -> Reviewer -> Human approval
+Manager routing -> Security -> Operations -> Terraform/CI-CD -> Reviewer
+-> Human approval
 ```
 
 ### Required input
@@ -258,7 +284,7 @@ Agent는 scanner finding을 그대로 취약하다고 확정하지 않고 runtim
 ### Agent sequence
 
 ```text
-Operations -> Security -> Monitoring -> Reviewer -> Human execution
+Manager routing -> Operations -> Security -> Monitoring -> Reviewer -> Human execution
 ```
 
 ### Restore request requirements
@@ -286,7 +312,7 @@ Operations -> Security -> Monitoring -> Reviewer -> Human execution
 ### Agent sequence
 
 ```text
-FinOps -> Operations -> Terraform -> Reviewer -> FinOps owner approval
+Manager routing -> FinOps -> Operations -> Terraform -> Reviewer -> FinOps owner approval
 ```
 
 ### Review cadence
@@ -305,7 +331,7 @@ FinOps Agent는 삭제, instance 변경, RI/Savings Plans 구매를 직접 수�
 ### Agent sequence
 
 ```text
-Monitoring -> Service owner -> Operations -> Reviewer -> CI/CD
+Manager routing -> Monitoring -> Service owner -> Operations -> Reviewer -> CI/CD
 ```
 
 Alarm 변경안은 기존 event 수, false positive 비율, missed incident 가능성, 새 threshold와 evaluation period, notification target, runbook URL을 포함해야 합니다.
@@ -327,6 +353,8 @@ Incident 중 임시 suppression이 필요하면 종료 시간, 대상 alarm, 승
 | Break-glass | Security review after event | Incident commander + security owner | Named emergency operator |
 
 Agent는 자신의 결과를 최종 승인할 수 없습니다.
+
+Cloud Platform Manager Agent는 approval matrix의 검토자를 대신하지 않습니다. Manager의 `ready_for_approval` 상태는 필수 전문 검토와 evidence가 모였다는 workflow 상태일 뿐 승인 자체가 아닙니다.
 
 ## 17. Agent Handoff Contract
 
@@ -355,6 +383,8 @@ requested_output:
 ```
 
 구두 또는 대화 내용만으로 handoff하지 않습니다.
+
+Cross-domain 요청에서는 Manager Agent가 handoff artifact index와 전체 상태를 관리하되, 각 artifact의 사실·판단 책임은 작성한 domain Agent에게 남습니다.
 
 ## 18. Required Agent Output
 
