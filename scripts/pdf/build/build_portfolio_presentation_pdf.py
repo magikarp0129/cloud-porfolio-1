@@ -37,7 +37,7 @@ def main() -> int:
         "--variable=monofont:AppleGothic",
         "--variable=colorlinks:true",
         "--metadata=title-meta:엔터프라이즈 클라우드 플랫폼 엔지니어링 포트폴리오",
-        "--metadata=author-meta:클라우드 플랫폼 엔지니어링 포트폴리오",
+        "--metadata=author-meta:아키텍처 설계 및 구현 - 작성자; 문서화 보조 - OpenAI Codex",
         f"--resource-path={REPOSITORY_ROOT}",
         f"--output={OUTPUT}",
     ]

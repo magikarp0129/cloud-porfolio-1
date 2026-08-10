@@ -3,6 +3,8 @@
 \usepackage{longtable}
 \usepackage{array}
 \usepackage{xcolor}
+\usepackage{setspace}
+\usepackage{etoolbox}
 
 \definecolor{PortfolioInk}{HTML}{17212B}
 \definecolor{PortfolioTeal}{HTML}{087E8B}
@@ -10,17 +12,20 @@
 \definecolor{PortfolioLine}{HTML}{CDD6DD}
 
 \setlength{\parindent}{0pt}
-\setlength{\parskip}{4pt}
-\renewcommand{\arraystretch}{1.18}
+\setlength{\parskip}{6pt}
+\setstretch{1.08}
+\setlength{\emergencystretch}{3em}
+\renewcommand{\arraystretch}{1.22}
+\AtBeginEnvironment{longtable}{\small\setstretch{1.02}}
 
 \makeatletter
 \renewcommand\section{\@startsection{section}{1}{\z@}
-  {-2.4ex \@plus -0.8ex \@minus -0.2ex}
-  {1.2ex \@plus 0.2ex}
+  {-2.6ex \@plus -0.8ex \@minus -0.2ex}
+  {1.35ex \@plus 0.2ex}
   {\color{PortfolioInk}\Large\bfseries}}
 \renewcommand\subsection{\@startsection{subsection}{2}{\z@}
-  {-1.8ex \@plus -0.6ex \@minus -0.2ex}
-  {0.8ex \@plus 0.2ex}
+  {-2.0ex \@plus -0.6ex \@minus -0.2ex}
+  {0.9ex \@plus 0.2ex}
   {\color{PortfolioInk}\large\bfseries}}
 \makeatother
 

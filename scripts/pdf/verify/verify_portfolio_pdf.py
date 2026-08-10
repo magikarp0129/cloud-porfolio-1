@@ -30,8 +30,8 @@ def main():
     render_dir.mkdir(parents=True, exist_ok=True)
 
     reader = PdfReader(str(pdf_path))
-    if len(reader.pages) < 10 or len(reader.pages) > 18:
-        raise RuntimeError(f"Expected a concise 10-18 page portfolio, got {len(reader.pages)}")
+    if len(reader.pages) < 15 or len(reader.pages) > 24:
+        raise RuntimeError(f"Expected a readable 15-24 page portfolio, got {len(reader.pages)}")
 
     empty_pages = []
     for number, page in enumerate(reader.pages, start=1):
@@ -48,31 +48,41 @@ def main():
 
     compact_full_text = compact(full_text)
     required_text = [
-        "프로젝트 개요",
-        "프로젝트 배경",
-        "랜딩 존 아키텍처",
-        "Terraform 아키텍처",
-        "모니터링 및 관측성 아키텍처",
-        "EKS 아키텍처",
-        "보안 아키텍처",
-        "서비스 아키텍처",
-        "거버넌스",
-        "비용 관리",
+        "README 기반 독자판",
+        "프로젝트 목표",
+        "범위와 증거를 읽는 방법",
+        "저장소 구조와 권장 탐색 순서",
+        "Multi-Agent Operating Model",
+        "Target Cloud Architecture",
+        "Landing Zone과 서비스 네트워크",
+        "Terraform Implementation Strategy",
+        "EKS와 Kubernetes Platform",
+        "Monitoring and Alerting",
+        "Operations Strategy",
+        "FinOps Strategy",
+        "Security and Governance",
+        "현재 구현과 검증 상태",
+        "다음 구현 단계",
+        "Definition of Done과 Production Promotion Gate",
+        "Current, Defined, Target, Evidence",
+        "Human-led, Agent-assisted",
+        "apply는 Agent mode가 아닙니다",
         "10.64.0.0/10",
-        "15개 VPC",
-        "EKS 1.35",
+        "15개 독립 VPC root",
+        "Private EKS 1.35",
+        "28개 validation target",
+        "25개 통과",
         "ResourceQuota",
         "LB subnet",
         "EKS Node subnet",
         "VPC CNI Pod subnet",
         "AZ별 ENIConfig",
-        "Landing Zone TGW",
-        "internal annotation",
         "90 / 90 / 365",
         "30 / 90 / 365",
-        "Karpenter 미설치",
-        "Cluster Autoscaler 미설치",
-        "서비스별 EKS cluster 미구현",
+        "Karpenter, Cluster Autoscaler, workload HPA/KEDA 미구현",
+        "28/28 validate 성공을 주장하지 않음",
+        "실제 청구 데이터와 실현 절감액은 포함되어 있지 않습니다",
+        "protected CI/CD",
     ]
     missing_text = [token for token in required_text if compact(token) not in compact_full_text]
     if missing_text:
@@ -96,16 +106,21 @@ def main():
 
     toc_text = reader.pages[0].extract_text() or ""
     required_toc_entries = [
-        "1 프로젝트 개요",
-        "2 프로젝트 배경",
-        "3 랜딩 존 아키텍처",
-        "4 Terraform 아키텍처",
-        "5 모니터링 및 관측성 아키텍처",
-        "6 EKS 아키텍처",
-        "7 보안 아키텍처",
-        "8 서비스 아키텍처",
-        "9 거버넌스",
-        "10 비용 관리",
+        "1 프로젝트 목표",
+        "2 범위와 증거를 읽는 방법",
+        "3 저장소 구조와 권장 탐색 순서",
+        "4 Multi-Agent Operating Model",
+        "5 Target Cloud Architecture",
+        "6 Landing Zone과 서비스 네트워크",
+        "7 Terraform Implementation Strategy",
+        "8 EKS와 Kubernetes Platform",
+        "9 Monitoring and Alerting",
+        "10 Operations Strategy",
+        "11 FinOps Strategy",
+        "12 Security and Governance",
+        "13 현재 구현과 검증 상태",
+        "14 다음 구현 단계",
+        "15 Definition of Done과 Production Promotion Gate",
     ]
     compact_toc_text = compact(toc_text)
     missing_toc_entries = [token for token in required_toc_entries if compact(token) not in compact_toc_text]

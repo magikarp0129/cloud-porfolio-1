@@ -42,7 +42,7 @@
 | [repository-structure.md](repository-structure.md) | 현재 구현 | 디렉터리별 책임, 코드 시작 위치와 면접 시 탐색 경로 |
 | [portfolio-presentation.md](portfolio-presentation.md) | 빌드 소스 | 현재 `enterprise-cloud-portfolio.pdf`의 본문 canonical source |
 | [portfolio-presentation-header.tex](portfolio-presentation-header.tex) | 빌드 소스 | PDF 글꼴, 여백, 머리말과 표 스타일. 운영 내용은 넣지 않음 |
-| [portfolio-outline.md](portfolio-outline.md) | 설계 기준 | PDF의 아키텍처 중심 작성 기준과 10개 장 목차. 현재 PDF 내용 자체는 `portfolio-presentation.md`가 소유 |
+| [portfolio-outline.md](portfolio-outline.md) | 설계 기준 | 루트 README 흐름을 따르는 PDF 작성 기준과 15개 장의 독자 흐름. 현재 PDF 내용 자체는 `portfolio-presentation.md`가 소유 |
 
 ### 2. 아키텍처와 접근 제어
 

@@ -1339,21 +1339,30 @@ Production 적용 전 남은 gate:
 
 ## 13. PDF 포트폴리오 구성
 
-최종 PDF는 다음 목차로 구성합니다.
+최종 PDF는 루트 README의 서술 흐름을 기준으로 작성합니다. 구현값만 빠르게 나열하지 않고 `왜 필요한가 → 어떤 경계로 설계했는가 → 무엇을 구현했는가 → 무엇이 남았는가 → 어떤 증거가 있어야 완료인가`를 순서대로 읽을 수 있게 구성합니다.
 
-1. 프로젝트 개요
-2. 프로젝트 배경
-3. 랜딩 존 아키텍처
-4. Terraform 아키텍처
-5. 모니터링 및 관측성 아키텍처
-6. EKS 아키텍처
-7. 보안 아키텍처
-8. 서비스 아키텍처
-9. 거버넌스
-10. 비용 관리
+현재 PDF 목차:
+
+1. 프로젝트 목표
+2. 범위와 증거를 읽는 방법
+3. 저장소 구조와 권장 탐색 순서
+4. Multi-Agent Operating Model
+5. Target Cloud Architecture
+6. Landing Zone과 서비스 네트워크
+7. Terraform Implementation Strategy
+8. EKS와 Kubernetes Platform
+9. Monitoring and Alerting
+10. Operations Strategy
+11. FinOps Strategy
+12. Security and Governance
+13. 현재 구현과 검증 상태
+14. 다음 구현 단계
+15. Definition of Done과 Production Promotion Gate
 
 PDF에 포함할 핵심 산출물:
 
+- 프로젝트가 답하는 질문과 Current/Defined/Target/Evidence 구분
+- 저장소 탐색 순서, Agent 역할과 Human-led 승인 경계
 - IPAM, TGW, RAM과 서비스 VPC subnet 구성
 - Terraform state, 디렉터리와 module 구성
 - CloudWatch, Prometheus, Grafana와 주요 알람 기준
@@ -1363,9 +1372,10 @@ PDF에 포함할 핵심 산출물:
 - IAM, KMS, GuardDuty, Security Hub, Inspector와 WAF 연결 상태
 - 5개 서비스의 dev/stg/prod CIDR과 실제 생성 리소스
 - OU, SCP, Tag Policy와 account 생성 범위
-- 환경별 Budget, Cost Anomaly, scheduler와 endpoint 구성
+- backup, patch, scheduler, Budget와 Cost Anomaly 구성
+- 현재 로컬 검증의 의미, production 전 잔여 위험과 promotion gate
 
-PDF는 설계 이유와 장문의 판단 과정을 제외하고 현재 구성에 집중한 A4 아키텍처 보고서입니다. 각 장은 `전체 흐름 → 컴포넌트 → 환경별 값 → 구현 여부` 순서로 작성합니다. 작성자는 전체 아키텍처와 구성을 정의하며, `OpenAI Codex`, `GPT-5.6-Sol`, 추론 수준 `xhigh`는 코드 분석, 원고 작성, 일관성 확인과 PDF 제작을 보조했습니다.
+PDF 원고는 README를 그대로 복제하지 않고 설명 문단으로 맥락을 먼저 제공한 뒤 표와 계층도로 수치, ownership과 구현 여부를 확인하는 독자판으로 관리합니다. 상세 작성 원칙과 목차는 [포트폴리오 PDF 구성](docs/portfolio-outline.md), 실제 본문은 [PDF 원고](docs/portfolio-presentation.md)가 소유합니다. 작성자는 전체 아키텍처와 구성을 정의하며 OpenAI Codex는 코드 분석, 원고 작성, 일관성 확인과 PDF 제작을 보조합니다.
 
 PDF 생성과 검수:
 
@@ -1374,7 +1384,7 @@ python3 scripts/pdf/build/build_portfolio_presentation_pdf.py
 python3 scripts/pdf/verify/verify_portfolio_pdf.py enterprise-cloud-portfolio.pdf
 ```
 
-최종 산출물은 최상위 `enterprise-cloud-portfolio.pdf`입니다. 검수 스크립트는 PDF 텍스트 계층, 목차·책갈피, 빈 페이지, 페이지 수와 핵심 아키텍처 항목을 검사하고 시스템 임시 경로에 Poppler 페이지 PNG와 한눈에 보는 이미지를 생성합니다. 현재 PDF는 A4 12페이지 아키텍처 보고서입니다.
+최종 산출물은 최상위 `enterprise-cloud-portfolio.pdf`입니다. 검수 스크립트는 PDF 텍스트 계층, 15개 장의 목차·책갈피, 빈 페이지, 페이지 수와 핵심 경계를 검사하고 시스템 임시 경로에 Poppler 페이지 PNG와 한눈에 보는 이미지를 생성합니다. 현재 PDF는 A4 19페이지 README 기반 독자판입니다.
 
 ## 14. 현재 상태
 
@@ -1417,7 +1427,7 @@ python3 scripts/pdf/verify/verify_portfolio_pdf.py enterprise-cloud-portfolio.pd
 - Monitoring Agent request/security/read-only boundary unit test 25개 통과
 - `examples/` fixture, `schemas/` machine contract와 `reports/` 월간·장애 보고서 양식·simulation 예시의 역할 분리 및 CI smoke 검증
 - 보안 검토와 production 적용 전 residual risk 문서화
-- A4 12페이지 한국어 아키텍처 중심 PDF 포트폴리오 생성과 전체 페이지 시각 검수 완료
+- A4 19페이지 README 기반 한국어 포트폴리오 생성과 전체 페이지 시각 검수 완료
 - Agent 선택, 요청, workflow, 승인, handoff, session 재개를 포함한 운영자 사용설명서 작성
 
 ## 15. 다음 구현 단계
