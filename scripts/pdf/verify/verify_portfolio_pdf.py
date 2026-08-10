@@ -50,6 +50,12 @@ def main():
     required_text = [
         "README 기반 독자판",
         "프로젝트 목표",
+        "설계 영역별 Target Scope",
+        "AWS 클라우드 및 네트워크",
+        "Terraform과 IaC",
+        "FinOps 및 Cost Governance",
+        "AI Platform 및 Multi-Agent",
+        "Documentation 및 Validation",
         "범위와 증거를 읽는 방법",
         "저장소 구조와 권장 탐색 순서",
         "Multi-Agent Operating Model",

@@ -23,29 +23,79 @@ Terraform 기반으로 엔터프라이즈 클라우드 구축 환경을 설계�
 
 초기 버전은 AWS 기준으로 작성합니다. 이후 Azure 또는 GCP 버전으로 확장할 수 있습니다.
 
-구축 범위는 다음과 같습니다.
+구축 범위는 설계 영역별로 다음과 같이 나눕니다.
 
-- Landing zone 설계
-- VPC 및 subnet 분리
-- Public/private network segmentation
-- IAM 및 security baseline
-- AWS Organizations 및 SCP governance
-- Compute workload 배포 구조
-- Observability stack 설계
-- Alerting policy 설계
-- EKS Day-2 운영: 로그 보존, QoS, 용량, 가용성, 백업, 업그레이드, 장애 대응
-- FinOps 및 cost governance 설계
-- Backup, patch, CVE/EOS, OS lifecycle 운영 전략
-- Instance scheduling and workload runtime policy
-- Package repository and artifact management
-- Terraform module 구조
-- Dev/stg/prod 환경 분리
-- Multi-agent operating model
-- Enterprise AI Gateway and Agent Runtime
-- AI token usage and cost dashboard
-- Corporate IdP, IAM Identity Center, permission set 기반 workforce access
-- Closed network Console and CLI access model
-- PDF 포트폴리오 문서화
+### 2.1 AWS 클라우드 및 네트워크 설계
+
+- AWS Organizations 기반 multi-account와 Landing Zone 구조
+- VPC, LB/AP/DB/EKS Node/Pod/TGW/EKS Cluster subnet 분리
+- Public/private network segmentation과 중앙 ingress/egress
+- IPAM, Transit Gateway, RAM과 서비스 간 routing domain
+- Compute workload 배포 구조와 dev/stg/prod 환경 분리
+
+### 2.2 Terraform과 IaC 설계
+
+- Organization, Landing Zone, service, environment와 platform root 분리
+- reusable Terraform module, input/output과 dependency 구조
+- remote state, state ownership과 적용 순서
+- 환경별 variable과 promotion 전략
+- format, validate, plan review와 protected CI/CD 승인 경계
+
+### 2.3 EKS 및 Kubernetes Platform 설계
+
+- Private EKS, managed node group, managed add-on과 Pod Identity
+- EKS control plane, node와 VPC CNI Pod network 분리
+- Istio, namespace policy, ResourceQuota, LimitRange와 PriorityClass
+- EKS Day-2 운영: 로그, QoS, 용량, 가용성, backup, upgrade와 장애 대응
+- HPA, KEDA, Cluster Autoscaler/Karpenter와 PDB ownership 경계
+
+### 2.4 Monitoring 및 Observability 설계
+
+- CloudWatch, Prometheus와 Grafana 기반 observability stack
+- metric, log, trace, dashboard와 alerting flow
+- Warning/Critical threshold, 지속 시간과 missing-data policy
+- EKS control plane, node/runtime와 application signal 수집
+- Mimir, OpenTelemetry와 custom metric 확장 구조
+
+### 2.5 Operations 설계
+
+- AWS Backup, restore drill과 retention policy
+- Instance scheduling과 workload runtime policy
+- Systems Manager patch, CVE/EOS와 OS lifecycle 관리
+- Package repository, container image와 artifact 관리
+- Linux, EKS와 AWS 읽기 전용 점검, runbook과 정기 운영 보고
+
+### 2.6 Security, Governance 및 Workforce Identity 설계
+
+- IAM least privilege, security baseline과 encryption
+- AWS Organizations OU, SCP와 Tag Policy governance
+- network segmentation, WAF, threat detection과 audit logging
+- Corporate IdP, IAM Identity Center와 permission set 기반 workforce access
+- 폐쇄망 Console/CLI, JIT access와 production 변경 승인
+
+### 2.7 FinOps 및 Cost Governance 설계
+
+- 공통 tag와 account/environment/service별 비용 귀속
+- AWS Budgets, Cost Anomaly Detection과 알림
+- scheduler, rightsizing과 idle resource 최적화
+- TGW, endpoint, data transfer와 observability 비용 관리
+- baseline, actual billing과 accountable sign-off 기반 절감 효과 검증
+
+### 2.8 AI Platform 및 Multi-Agent 설계
+
+- Architecture, Terraform, Security, Monitoring 등 역할별 Agent 운영 모델
+- Enterprise AI Gateway, Agent Runtime과 Tool Broker 경계
+- identity, model/tool allowlist, data classification과 production 승인
+- AI token usage, latency, error와 estimated cost dashboard
+- request, evidence, report와 audit artifact의 `request_id`/`trace_id` 연결
+
+### 2.9 Documentation 및 Validation 설계
+
+- README, domain 문서와 PDF 포트폴리오의 canonical ownership
+- schema, synthetic fixture, report template/example의 역할 분리
+- Terraform, Agent contract, monitoring policy와 운영 스크립트 자동 검증
+- 현재 구현, 목표 구조와 production evidence를 구분하는 문서 체계
+- PDF 포트폴리오 생성과 전체 페이지 시각 검수
 
 ## 3. Repository Layout
 
@@ -1384,7 +1434,7 @@ python3 scripts/pdf/build/build_portfolio_presentation_pdf.py
 python3 scripts/pdf/verify/verify_portfolio_pdf.py enterprise-cloud-portfolio.pdf
 ```
 
-최종 산출물은 최상위 `enterprise-cloud-portfolio.pdf`입니다. 검수 스크립트는 PDF 텍스트 계층, 15개 장의 목차·책갈피, 빈 페이지, 페이지 수와 핵심 경계를 검사하고 시스템 임시 경로에 Poppler 페이지 PNG와 한눈에 보는 이미지를 생성합니다. 현재 PDF는 A4 19페이지 README 기반 독자판입니다.
+최종 산출물은 최상위 `enterprise-cloud-portfolio.pdf`입니다. 검수 스크립트는 PDF 텍스트 계층, 15개 장의 목차·책갈피, 빈 페이지, 페이지 수와 핵심 경계를 검사하고 시스템 임시 경로에 Poppler 페이지 PNG와 한눈에 보는 이미지를 생성합니다. 현재 PDF는 A4 20페이지 README 기반 독자판입니다.
 
 ## 14. 현재 상태
 
@@ -1427,7 +1477,7 @@ python3 scripts/pdf/verify/verify_portfolio_pdf.py enterprise-cloud-portfolio.pd
 - Monitoring Agent request/security/read-only boundary unit test 25개 통과
 - `examples/` fixture, `schemas/` machine contract와 `reports/` 월간·장애 보고서 양식·simulation 예시의 역할 분리 및 CI smoke 검증
 - 보안 검토와 production 적용 전 residual risk 문서화
-- A4 19페이지 README 기반 한국어 포트폴리오 생성과 전체 페이지 시각 검수 완료
+- A4 20페이지 README 기반 한국어 포트폴리오 생성과 전체 페이지 시각 검수 완료
 - Agent 선택, 요청, workflow, 승인, handoff, session 재개를 포함한 운영자 사용설명서 작성
 
 ## 15. 다음 구현 단계

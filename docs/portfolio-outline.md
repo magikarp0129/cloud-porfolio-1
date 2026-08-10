@@ -22,6 +22,7 @@
 ### 1. 프로젝트 목표
 
 - 포트폴리오가 답하는 질문
+- AWS, Terraform, EKS, Observability, Operations, FinOps, Security/Identity, AI/Agent와 Documentation/Validation으로 나눈 Target Scope
 - 전체 구축 흐름과 핵심 범위
 - 저장소 구현과 실제 배포의 구분
 

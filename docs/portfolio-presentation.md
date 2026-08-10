@@ -33,6 +33,22 @@ geometry:
 - 여러 전문 Agent를 어떤 identity, tool과 승인 경계 안에서 활용할 것인가?
 - 코드와 로컬 시험, 실제 AWS 배포 증적을 어떻게 구분할 것인가?
 
+## 설계 영역별 Target Scope
+
+| 설계 영역 | 주요 범위 |
+|---|---|
+| AWS 클라우드 및 네트워크 | Organizations, Landing Zone, VPC/subnet, IPAM, TGW, routing domain |
+| Terraform과 IaC | root/module/state ownership, 환경 분리, validation, plan과 CI/CD 승인 |
+| EKS 및 Kubernetes Platform | private EKS, node/Pod network, Istio, QoS, scaling, backup과 upgrade |
+| Monitoring 및 Observability | CloudWatch, Prometheus/Grafana, alert policy, Mimir와 OpenTelemetry |
+| Operations | backup/restore, scheduler, patch, CVE/EOS, artifact와 read-only 점검 |
+| Security, Governance 및 Identity | IAM/KMS, OU/SCP, WAF, Corporate IdP, Identity Center와 폐쇄망 접근 |
+| FinOps 및 Cost Governance | tag, budget, anomaly, rightsizing, network/observability 비용과 절감 검증 |
+| AI Platform 및 Multi-Agent | AI Gateway, Agent Runtime, model/tool 경계, token/cost와 evidence audit |
+| Documentation 및 Validation | canonical 문서, schema/fixture/report 경계, 자동 검증과 PDF 시각 검수 |
+
+\newpage
+
 ## 한눈에 보는 구축 범위
 
 ```text
