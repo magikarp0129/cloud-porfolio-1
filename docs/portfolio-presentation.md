@@ -179,13 +179,17 @@ README는 프로젝트 전체의 단일 진입점입니다. 세부 문서는 주
 Cloud Platform Owner / Designated Approver (Human)
 └── Cloud Platform Manager Agent
     ├── Strategy, Architecture and Governance
-    │   └── Architecture · Governance · Security · FinOps
+    │   └── Architecture Agent (Domain Lead)
+    │       ├── Governance · Security · FinOps
     ├── Platform Engineering and Delivery
-    │   └── Terraform · CI/CD
+    │   └── Terraform Agent (Domain Lead)
+    │       └── CI/CD Agent
     ├── Reliability and Operations
-    │   └── Operations · Monitoring
+    │   └── Operations Agent (Domain Lead)
+    │       └── Monitoring Agent
     └── Assurance and Knowledge
-        └── Reviewer · Documentation
+        └── Reviewer Agent (Independent Assurance Lead)
+            └── Documentation Agent
 ```
 
 | 조직 | Domain Lead | 책임 |

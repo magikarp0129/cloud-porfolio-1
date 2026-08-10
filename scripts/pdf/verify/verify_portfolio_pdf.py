@@ -64,6 +64,8 @@ def main():
         "Platform Engineering and Delivery",
         "Reliability and Operations",
         "Assurance and Knowledge",
+        "Architecture Agent (Domain Lead)",
+        "Reviewer Agent (Independent Assurance Lead)",
         "Manager 1개와 전문 역할 10개",
         "Target Cloud Architecture",
         "Landing Zone과 서비스 네트워크",

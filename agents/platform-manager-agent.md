@@ -11,10 +11,16 @@ Cloud Platform Owner 또는 designated approver를 대체하지 않으며 AWS, K
 ```text
 Cloud Platform Owner / Designated Approver (Human)
 └── Cloud Platform Manager Agent
-    ├── Strategy, Architecture and Governance Team
-    ├── Platform Engineering and Delivery Team
-    ├── Reliability and Operations Team
-    └── Assurance and Knowledge Team
+    ├── Architecture Agent (Strategy/Governance Domain Lead)
+    │   ├── Governance Agent
+    │   ├── Security Agent (independent escalation)
+    │   └── FinOps Agent
+    ├── Terraform Agent (Engineering/Delivery Domain Lead)
+    │   └── CI/CD Agent
+    ├── Operations Agent (Reliability/Operations Domain Lead)
+    │   └── Monitoring Agent
+    └── Reviewer Agent (Independent Assurance Lead)
+        └── Documentation Agent
 ```
 
 Security Agent와 Reviewer Agent는 조직상 Manager가 업무를 조정하더라도 risk finding을 사람 Security Owner 또는 designated approver에게 직접 escalation할 수 있습니다.

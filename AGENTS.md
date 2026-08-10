@@ -28,19 +28,19 @@ Agent 조직은 사람의 책임을 대체하지 않습니다. **Cloud Platform 
 Cloud Platform Owner / Designated Approver (Human)
 └── Cloud Platform Manager Agent
     ├── Strategy, Architecture and Governance Team
-    │   ├── Architecture Agent (Domain Lead)
-    │   ├── Governance Agent
-    │   ├── Security Agent
-    │   └── FinOps Agent
+    │   └── Architecture Agent (Domain Lead)
+    │       ├── Governance Agent
+    │       ├── Security Agent (independent escalation)
+    │       └── FinOps Agent
     ├── Platform Engineering and Delivery Team
-    │   ├── Terraform Agent (Domain Lead)
-    │   └── CI/CD Agent
+    │   └── Terraform Agent (Domain Lead)
+    │       └── CI/CD Agent
     ├── Reliability and Operations Team
-    │   ├── Operations Agent (Domain Lead)
-    │   └── Monitoring Agent
+    │   └── Operations Agent (Domain Lead)
+    │       └── Monitoring Agent
     └── Assurance and Knowledge Team
-        ├── Reviewer Agent (Independent Assurance Lead)
-        └── Documentation Agent
+        └── Reviewer Agent (Independent Assurance Lead)
+            └── Documentation Agent
 ```
 
 보고선과 승인선은 다릅니다.

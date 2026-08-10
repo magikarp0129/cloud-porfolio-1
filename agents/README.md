@@ -46,13 +46,19 @@
 Cloud Platform Owner / Designated Approver (Human)
 └── Cloud Platform Manager Agent
     ├── Strategy, Architecture and Governance
-    │   └── Architecture · Governance · Security · FinOps
+    │   └── Architecture Agent (Domain Lead)
+    │       ├── Governance Agent
+    │       ├── Security Agent (independent escalation)
+    │       └── FinOps Agent
     ├── Platform Engineering and Delivery
-    │   └── Terraform · CI/CD
+    │   └── Terraform Agent (Domain Lead)
+    │       └── CI/CD Agent
     ├── Reliability and Operations
-    │   └── Operations · Monitoring
+    │   └── Operations Agent (Domain Lead)
+    │       └── Monitoring Agent
     └── Assurance and Knowledge
-        └── Reviewer · Documentation
+        └── Reviewer Agent (Independent Assurance Lead)
+            └── Documentation Agent
 ```
 
 Manager Agent는 cross-domain 요청을 분해하고 조직 간 handoff를 조정합니다. 단일 domain 요청은 해당 전문 Agent를 primary로 바로 선택할 수 있습니다. Security와 Reviewer는 Manager의 조정 아래에서도 independent finding을 accountable human에게 직접 escalation할 수 있습니다.

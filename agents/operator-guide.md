@@ -38,7 +38,90 @@ Cloud Platform Manager Agent는 여러 전문 영역이 필요한 요청을 분�
 
 장기 IAM access key는 사용하지 않습니다. AWS 접근이 필요한 검증은 IAM Identity Center 또는 CI/CD OIDC의 short-lived credential을 사용합니다.
 
-## 4. Selecting an Agent
+<a id="selecting-and-requesting-agent"></a>
+
+## 4. Selecting and Requesting an Agent
+
+### Quick Decision Tree
+
+```text
+요청이 두 개 이상의 전문 영역에 걸치는가?
+├── 예 또는 담당자가 불명확함
+│   └── Cloud Platform Manager Agent에 요청
+│       └── work breakdown과 routing plan을 사람이 확인
+│           └── 각 Domain Agent에 별도 요청 생성
+└── 아니요
+    └── 아래 선택표에서 전문 Agent 하나를 primary로 지정
+        └── 결과를 Reviewer와 담당 human이 검증
+```
+
+현재 Manager orchestration runtime은 구현되지 않았습니다. 따라서 Manager 문서가 하위 Agent를 자동 호출한다고 가정하지 않습니다. 운영자 또는 향후 Portal이 승인된 routing plan을 확인한 뒤 각 Agent 요청과 `request_id` 연결을 생성합니다.
+
+### Request in Six Steps
+
+1. 요청을 한 문장으로 정의하고 ticket, environment와 완료 조건을 준비합니다.
+2. cross-domain이면 [`platform-manager.yaml`](request-templates/platform-manager.yaml), 단일 domain이면 [역할별 template](request-templates/README.md)을 선택합니다.
+3. `mode`, in/out scope, 금지 작업, source revision, 최대 비용과 timeout을 채웁니다.
+4. Agent에게 facts, unknowns, risks, option, recommendation, validation과 handoff를 포함해 달라고 요청합니다.
+5. 결과의 원본 source, 변경 파일, validation, 비용·보안 영향과 blocker를 운영자가 확인합니다.
+6. 후속 Agent가 필요하면 새 요청을 만들고 handoff artifact를 첨부합니다. production 실행은 별도 사람 승인과 protected CI/CD로만 진행합니다.
+
+### Cross-Domain Manager Request Example
+
+```text
+[Agent]
+Cloud Platform Manager Agent
+
+[Objective]
+prod 서비스 VPC에 신규 EKS workload를 수용하기 위한 변경 업무를 조직별로 나눠 주세요.
+
+[Scope]
+- Repository: cloud-portfolio
+- Environment: prod
+- Ticket: CHG-2026-0102
+- Mode: draft
+- Source revision: main@<commit>
+
+[Constraints]
+- cloud 변경과 terraform apply 금지
+- 기존 CIDR 변경 금지
+- Security와 Reviewer의 독립 검토 경로 유지
+- 예상 비용과 rollback owner가 없으면 blocker 처리
+
+[Expected Output]
+- workstream과 Domain Lead
+- Agent 실행 순서와 dependency
+- Agent별 input, success criteria와 handoff artifact
+- human decision, approval gate와 stop condition
+```
+
+Manager 결과를 확인한 운영자는 Architecture, Terraform, Security, Operations 등 필요한 Agent에 별도 요청을 만듭니다. Manager의 `ready_for_approval`은 요청 준비 상태이며 승인 자체가 아닙니다.
+
+### Direct Domain Request Example
+
+```text
+[Agent]
+Monitoring Agent
+
+[Objective]
+INC-2026-0142의 prod API 5xx 증가 원인을 read-only로 분석해 주세요.
+
+[Scope]
+- Environment: prod
+- Service: commerce-api
+- Time window: 2026-08-10T01:00:00Z/2026-08-10T03:00:00Z
+- Mode: read
+
+[Constraints]
+- restart, scale, alarm suppression과 설정 변경 금지
+- 허용된 query catalog만 사용
+- 사실, 가설과 누락 증거를 분리
+
+[Expected Output]
+- timestamp와 source가 있는 facts
+- 가능한 원인과 반증 query
+- Operations Agent에 전달할 handoff artifact
+```
 
 ### Organization and Reporting Model
 
@@ -46,13 +129,19 @@ Cloud Platform Manager Agent는 여러 전문 영역이 필요한 요청을 분�
 Cloud Platform Owner / Designated Approver (Human)
 └── Cloud Platform Manager Agent
     ├── Strategy, Architecture and Governance
-    │   └── Architecture · Governance · Security · FinOps
+    │   └── Architecture Agent (Domain Lead)
+    │       ├── Governance Agent
+    │       ├── Security Agent (independent escalation)
+    │       └── FinOps Agent
     ├── Platform Engineering and Delivery
-    │   └── Terraform · CI/CD
+    │   └── Terraform Agent (Domain Lead)
+    │       └── CI/CD Agent
     ├── Reliability and Operations
-    │   └── Operations · Monitoring
+    │   └── Operations Agent (Domain Lead)
+    │       └── Monitoring Agent
     └── Assurance and Knowledge
-        └── Reviewer · Documentation
+        └── Reviewer Agent (Independent Assurance Lead)
+            └── Documentation Agent
 ```
 
 Manager Agent는 cross-domain 요청의 work breakdown과 routing을 담당합니다. 요청이 한 영역에 명확히 속하면 해당 전문 Agent를 바로 primary로 선택합니다. Security와 Reviewer는 독립 finding을 Manager가 아닌 accountable human에게 직접 escalation할 수 있습니다.

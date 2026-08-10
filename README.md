@@ -57,95 +57,115 @@ Terraform 기반으로 엔터프라이즈 클라우드 구축 환경을 설계�
 
 구축 범위는 설계 영역별로 다음과 같이 나눕니다.
 
+각 표에서 `설계 답변`은 판단 기준을 소유하는 canonical 문서, `구현·결과`는 실제 코드·설정·검증 진입점입니다. `혼합`은 현재 구현과 아직 필요한 Target이 함께 있다는 뜻입니다.
+
 <a id="scope-aws-network"></a>
 
 ### 2.1 AWS 클라우드 및 네트워크 설계
 
-- AWS Organizations 기반 multi-account와 Landing Zone 구조
-- VPC, LB/AP/DB/EKS Node/Pod/TGW/EKS Cluster subnet 분리
-- Public/private network segmentation과 중앙 ingress/egress
-- IPAM, Transit Gateway, RAM과 서비스 간 routing domain
-- Compute workload 배포 구조와 dev/stg/prod 환경 분리
+| 범위 | 설계 답변 | 구현·결과 | 상태 |
+| --- | --- | --- | --- |
+| AWS Organizations 기반 multi-account와 Landing Zone | [전체 아키텍처](docs/architecture.md) | [Organization root](terraform/organization/README.md), [Landing Zone](terraform/landing-zone/README.md) | 혼합: OU/SCP 구현, account vending은 Target |
+| VPC와 LB/AP/DB/EKS Node/Pod/TGW/EKS Cluster subnet 분리 | [서비스 네트워크 설계](docs/service-network-architecture.md) | [Network module](terraform/modules/network/README.md), [Service VPC module](terraform/modules/service-vpc/README.md) | 현재 구현 |
+| Public/private segmentation과 중앙 ingress/egress | [전체 아키텍처](docs/architecture.md) | [Network module](terraform/modules/network/README.md), [환경 root](terraform/environments/README.md) | 혼합: private spoke 구현, 중앙 inspection은 Target |
+| IPAM, Transit Gateway, RAM과 routing domain | [서비스 네트워크 설계](docs/service-network-architecture.md) | [Landing Zone](terraform/landing-zone/README.md), [Connectivity root](terraform/landing-zone/connectivity/README.md) | 현재 구현 |
+| Compute workload와 dev/stg/prod 분리 | [Repository/State 구조](docs/repository-structure.md) | [서비스 root](terraform/services/README.md), [환경 root](terraform/environments/README.md), [Compute 예약 module](terraform/modules/compute/README.md) | 혼합: VPC/EKS 구현, 일반 compute runtime은 Target |
 
 <a id="scope-terraform-iac"></a>
 
 ### 2.2 Terraform과 IaC 설계
 
-- Organization, Landing Zone, service, environment와 platform root 분리
-- reusable Terraform module, input/output과 dependency 구조
-- remote state, state ownership과 적용 순서
-- 환경별 variable과 promotion 전략
-- format, validate, plan review와 protected CI/CD 승인 경계
+| 범위 | 설계 답변 | 구현·결과 | 상태 |
+| --- | --- | --- | --- |
+| Organization, Landing Zone, service, environment와 platform root 분리 | [Terraform 구조](terraform/README.md) | [Organization](terraform/organization/README.md), [Landing Zone](terraform/landing-zone/README.md), [Services](terraform/services/README.md), [Environments](terraform/environments/README.md) | 현재 구현 |
+| reusable module, input/output과 dependency | [Module ownership](terraform/modules/README.md) | [구현 module 목록](terraform/modules/README.md) | 현재 구현: 19개 디렉터리 중 18개 구현 |
+| remote state, ownership과 적용 순서 | [Terraform 구조](terraform/README.md), [변경 관리](docs/terraform-change-management.md) | [환경 backend 예시](terraform/environments/dev/backend.hcl.example), [Landing Zone backend 예시](terraform/landing-zone/connectivity/backend.hcl.example) | 혼합: 코드/예시 존재, live backend 증적 없음 |
+| 환경별 variable과 promotion | [Terraform 변경 관리](docs/terraform-change-management.md) | [dev/stg/prod root](terraform/environments/README.md) | 설계·코드 정의 |
+| format, validate, plan review와 protected CI/CD | [Operator Guide](agents/operator-guide.md), [변경 관리](docs/terraform-change-management.md) | [검증 스크립트](scripts/validation/validate-terraform.sh), [Terraform workflow](.github/workflows/terraform-validate.yml) | 혼합: 정적 검증 구현, production plan/apply 증적 없음 |
 
 <a id="scope-eks-platform"></a>
 
 ### 2.3 EKS 및 Kubernetes Platform 설계
 
-- Private EKS, managed node group, managed add-on과 Pod Identity
-- EKS control plane, node와 VPC CNI Pod network 분리
-- Istio, namespace policy, ResourceQuota, LimitRange와 PriorityClass
-- EKS Day-2 운영: 로그, QoS, 용량, 가용성, backup, upgrade와 장애 대응
-- HPA, KEDA, Cluster Autoscaler/Karpenter와 PDB ownership 경계
+| 범위 | 설계 답변 | 구현·결과 | 상태 |
+| --- | --- | --- | --- |
+| Private EKS, managed node, add-on과 Pod Identity | [EKS 운영 표준](docs/eks-operations.md) | [EKS module](terraform/modules/eks/README.md) | 현재 구현 |
+| Control plane, node와 VPC CNI Pod network 분리 | [EKS 운영 표준](docs/eks-operations.md) | [EKS module](terraform/modules/eks/README.md), [Kubernetes Platform](terraform/modules/kubernetes-platform/README.md) | 현재 구현 |
+| Istio, namespace policy, ResourceQuota, LimitRange와 PriorityClass | [EKS 운영 표준](docs/eks-operations.md) | [Kubernetes Platform module](terraform/modules/kubernetes-platform/README.md) | 현재 구현 |
+| 로그, QoS, 용량, 가용성, backup, upgrade와 장애 대응 | [EKS Day-2 운영](docs/eks-operations.md) | [EKS health 점검](scripts/operations/kubernetes/eks-cluster-health.sh), [Operations module](terraform/modules/operations/README.md) | 혼합: 기준/일부 도구 구현, rehearsal 증적 없음 |
+| HPA, KEDA, Autoscaler/Karpenter와 PDB ownership | [EKS scaling·가용성 경계](docs/eks-operations.md), [확장 관측성](docs/observability-platform.md) | [Kubernetes Platform interface](terraform/modules/kubernetes-platform/README.md) | Target: PDB interface 외 controller/workload 미구현 |
 
 <a id="scope-observability"></a>
 
 ### 2.4 Monitoring 및 Observability 설계
 
-- CloudWatch, Prometheus와 Grafana 기반 observability stack
-- metric, log, trace, dashboard와 alerting flow
-- Warning/Critical threshold, 지속 시간과 missing-data policy
-- EKS control plane, node/runtime와 application signal 수집
-- Mimir, OpenTelemetry와 custom metric 확장 구조
+| 범위 | 설계 답변 | 구현·결과 | 상태 |
+| --- | --- | --- | --- |
+| CloudWatch, Prometheus와 Grafana stack | [Monitoring 개요](docs/monitoring.md) | [Observability module](terraform/modules/observability/README.md), [Kubernetes Platform](terraform/modules/kubernetes-platform/README.md) | 현재 구현 |
+| metric, log, trace, dashboard와 alerting flow | [Monitoring 개요](docs/monitoring.md) | [Observability module](terraform/modules/observability/README.md), [metric catalog](config/monitoring/metric-catalog.example.json) | 혼합: metric/log/dashboard 구현, trace는 Target |
+| Warning/Critical, 지속 시간과 missing-data | [Alert Policy](docs/monitoring-alert-policy.md) | [기계 판독 정책](config/monitoring/alert-policy.example.json), [정책 검증기](scripts/validation/validate-monitoring-alert-policy.py) | Defined/검증 가능 |
+| EKS control plane, node/runtime와 application signal | [EKS logging](docs/eks-operations.md) | [EKS module](terraform/modules/eks/README.md), [CloudWatch 보존 감사](scripts/operations/aws/audit-cloudwatch-log-retention.sh) | 현재 구현 |
+| Mimir, OpenTelemetry와 custom metric | [확장 관측성 플랫폼](docs/observability-platform.md) | [metric catalog](config/monitoring/metric-catalog.example.json) | Target 설계 |
 
 <a id="scope-operations"></a>
 
 ### 2.5 Operations 설계
 
-- AWS Backup, restore drill과 retention policy
-- Instance scheduling과 workload runtime policy
-- Systems Manager patch, CVE/EOS와 OS lifecycle 관리
-- Package repository, container image와 artifact 관리
-- Linux, EKS와 AWS 읽기 전용 점검, runbook과 정기 운영 보고
+| 범위 | 설계 답변 | 구현·결과 | 상태 |
+| --- | --- | --- | --- |
+| AWS Backup, restore drill과 retention | [공통 운영 전략](docs/operations.md), [EKS 복구](docs/eks-operations.md) | [Operations module](terraform/modules/operations/README.md) | 혼합: backup 코드 구현, restore drill 증적 없음 |
+| Instance scheduling과 workload runtime | [공통 운영 전략](docs/operations.md) | [Scheduler module](terraform/modules/operations/README.md) | 현재 구현: dev/stg, prod 차단 |
+| Systems Manager patch, CVE/EOS와 OS lifecycle | [공통 운영 전략](docs/operations.md) | [Operations module](terraform/modules/operations/README.md), [patch readiness](scripts/operations/linux/patch-readiness.sh) | 현재 구현/기준 정의 |
+| Package repository, container image와 artifact | [공통 운영 전략](docs/operations.md) | [Operations Agent 기준](agents/operations-agent.md) | 설계 기준 |
+| Linux, EKS, AWS 읽기 전용 점검과 정기 보고 | [운영 스크립트 안내](scripts/README.md), [Operator Guide](agents/operator-guide.md) | [Linux 점검](scripts/operations/linux/README.md), [Reports library](reports/README.md) | 현재 구현 |
 
 <a id="scope-security-governance-identity"></a>
 
 ### 2.6 Security, Governance 및 Workforce Identity 설계
 
-- IAM least privilege, security baseline과 encryption
-- AWS Organizations OU, SCP와 Tag Policy governance
-- network segmentation, WAF, threat detection과 audit logging
-- Corporate IdP, IAM Identity Center와 permission set 기반 workforce access
-- 폐쇄망 Console/CLI, JIT access와 production 변경 승인
+| 범위 | 설계 답변 | 구현·결과 | 상태 |
+| --- | --- | --- | --- |
+| IAM least privilege, security baseline과 encryption | [Security Review](docs/security-review.md) | [IAM module](terraform/modules/iam/README.md), [Security module](terraform/modules/security/README.md) | 현재 구현 |
+| Organizations OU, SCP와 Tag Policy | [Governance Agent](agents/governance-agent.md) | [Organization root](terraform/organization/README.md), [SCP module](terraform/modules/scp-policy/README.md) | 현재 구현 |
+| segmentation, WAF, threat detection과 audit logging | [Security Review](docs/security-review.md) | [WAF module](terraform/modules/waf/README.md), [Security module](terraform/modules/security/README.md) | 혼합: module 구현, WAF association/central archive는 Target |
+| Corporate IdP, Identity Center와 permission set | [Workforce Identity](docs/identity-access.md) | [Identity architecture](docs/identity-access.md) | Target 설계 |
+| 폐쇄망 Console/CLI, JIT와 production 승인 | [Workforce Identity](docs/identity-access.md), [Operator Guide](agents/operator-guide.md) | [Terraform 변경 관리](docs/terraform-change-management.md) | Target/운영 기준 |
 
 <a id="scope-finops"></a>
 
 ### 2.7 FinOps 및 Cost Governance 설계
 
-- 공통 tag와 account/environment/service별 비용 귀속
-- AWS Budgets, Cost Anomaly Detection과 알림
-- scheduler, rightsizing과 idle resource 최적화
-- TGW, endpoint, data transfer와 observability 비용 관리
-- baseline, actual billing과 accountable sign-off 기반 절감 효과 검증
+| 범위 | 설계 답변 | 구현·결과 | 상태 |
+| --- | --- | --- | --- |
+| 공통 tag와 account/environment/service 비용 귀속 | [FinOps 전략](docs/finops.md) | [Cost module](terraform/modules/cost/README.md), [환경 root](terraform/environments/README.md) | 현재 구현 |
+| Budgets, Cost Anomaly Detection과 알림 | [FinOps 전략](docs/finops.md) | [Cost module](terraform/modules/cost/README.md) | 현재 구현 |
+| scheduler, rightsizing과 idle resource 최적화 | [FinOps 전략](docs/finops.md), [운영 전략](docs/operations.md) | [Scheduler](terraform/modules/operations/README.md) | 혼합: scheduler 구현, rightsizing은 기준 |
+| TGW, endpoint, data transfer와 observability 비용 | [FinOps 전략](docs/finops.md), [서비스 네트워크](docs/service-network-architecture.md) | [Cost module](terraform/modules/cost/README.md), [Observability module](terraform/modules/observability/README.md) | Defined/일부 구현 |
+| baseline, actual billing과 sign-off 기반 절감 검증 | [측정·보고 기준](docs/agent-value/measurement-reporting.md) | [Scorecard template](docs/agent-value/scorecard-template.md), [월간 보고서](reports/templates/monthly-platform-report.md) | Defined: live actual 없음 |
 
 <a id="scope-ai-agent"></a>
 
 ### 2.8 AI Platform 및 Multi-Agent 설계
 
-- Architecture, Terraform, Security, Monitoring 등 역할별 Agent 운영 모델
-- Enterprise AI Gateway, Agent Runtime과 Tool Broker 경계
-- identity, model/tool allowlist, data classification과 production 승인
-- AI token usage, latency, error와 estimated cost dashboard
-- request, evidence, report와 audit artifact의 `request_id`/`trace_id` 연결
+| 범위 | 설계 답변 | 구현·결과 | 상태 |
+| --- | --- | --- | --- |
+| Manager와 역할별 Agent 운영 모델 | [공통 Agent 계약](AGENTS.md), [Agent Directory](agents/README.md) | [Operator Guide](agents/operator-guide.md), [역할별 요청 양식](agents/request-templates/README.md) | 현재 문서화 |
+| AI Gateway, Agent Runtime과 Tool Broker | [AI Platform](docs/ai-platform.md) | [Monitoring Agent MVP](docs/agent-incident-triage.md) | 혼합: Monitoring MVP, 중앙 platform은 Target |
+| identity, model/tool allowlist, data classification과 승인 | [AI Platform](docs/ai-platform.md), [Workforce Identity](docs/identity-access.md) | [Monitoring access module](terraform/modules/monitoring-agent-access/README.md) | 혼합 |
+| token usage, latency, error와 estimated cost dashboard | [AI Platform](docs/ai-platform.md) | [Agent KPI 기준](docs/agent-value/engineering-outcomes.md) | Target 설계 |
+| request, evidence, report와 audit의 trace 연결 | [Operator Guide](agents/operator-guide.md), [측정·보고 기준](docs/agent-value/measurement-reporting.md) | [Schemas](schemas/README.md), [Examples](examples/README.md), [Reports](reports/README.md) | 계약·fixture 구현 |
 
 <a id="scope-documentation-validation"></a>
 
 ### 2.9 Documentation 및 Validation 설계
 
-- README, domain 문서와 PDF 포트폴리오의 canonical ownership
-- schema, synthetic fixture, report template/example의 역할 분리
-- Terraform, Agent contract, monitoring policy와 운영 스크립트 자동 검증
-- 현재 구현, 목표 구조와 production evidence를 구분하는 문서 체계
-- PDF 포트폴리오 생성과 전체 페이지 시각 검수
+| 범위 | 설계 답변 | 구현·결과 | 상태 |
+| --- | --- | --- | --- |
+| README, domain 문서와 PDF canonical ownership | [문서 디렉터리](docs/README.md), [공통 ownership](AGENTS.md) | [Repository 탐색 가이드](docs/repository-structure.md) | 현재 구현 |
+| schema, fixture, report template/example 분리 | [Reporting boundary](AGENTS.md), [측정·보고 기준](docs/agent-value/measurement-reporting.md) | [Schemas](schemas/README.md), [Examples](examples/README.md), [Reports](reports/README.md) | 현재 구현 |
+| Terraform, Agent, monitoring과 운영 스크립트 검증 | [운영·검증 도구](scripts/README.md) | [Terraform CI](.github/workflows/terraform-validate.yml), [Agent CI](.github/workflows/agent-runtime-test.yml), [Operations CI](.github/workflows/operations-scripts-test.yml) | 현재 구현 |
+| Current, Target과 production evidence 구분 | [AGENTS 경계](AGENTS.md), [문서 상태 기준](docs/README.md) | [Security Review](docs/security-review.md), [현재 상태](#current-status) | 현재 구현 |
+| PDF 생성과 전체 페이지 시각 검수 | [PDF 작성 원칙](docs/portfolio-outline.md), [PDF 원고](docs/portfolio-presentation.md) | [PDF build](scripts/pdf/build/build_portfolio_presentation_pdf.py), [PDF verify](scripts/pdf/verify/verify_portfolio_pdf.py) | 현재 구현 |
 
 <a id="repository-layout"></a>
 
@@ -311,19 +331,19 @@ Terraform 기반으로 엔터프라이즈 클라우드 구축 환경을 설계�
 Cloud Platform Owner / Designated Approver (Human)
 └── Cloud Platform Manager Agent
     ├── Strategy, Architecture and Governance Team
-    │   ├── Architecture Agent (Domain Lead)
-    │   ├── Governance Agent
-    │   ├── Security Agent
-    │   └── FinOps Agent
+    │   └── Architecture Agent (Domain Lead)
+    │       ├── Governance Agent
+    │       ├── Security Agent (independent escalation)
+    │       └── FinOps Agent
     ├── Platform Engineering and Delivery Team
-    │   ├── Terraform Agent (Domain Lead)
-    │   └── CI/CD Agent
+    │   └── Terraform Agent (Domain Lead)
+    │       └── CI/CD Agent
     ├── Reliability and Operations Team
-    │   ├── Operations Agent (Domain Lead)
-    │   └── Monitoring Agent
+    │   └── Operations Agent (Domain Lead)
+    │       └── Monitoring Agent
     └── Assurance and Knowledge Team
-        ├── Reviewer Agent (Independent Assurance Lead)
-        └── Documentation Agent
+        └── Reviewer Agent (Independent Assurance Lead)
+            └── Documentation Agent
 ```
 
 | 조직 | 책임 | Domain Lead | 구성 Agent |
@@ -380,6 +400,17 @@ Agent 명령 계약과 역할별 runtime 권한은 [Enterprise AI Platform and A
 ### Operator Usage Guide
 
 운영자가 Agent를 선택하고 요청, 검토, 승인, handoff하는 전체 절차는 [Multi-Agent Operator Guide](agents/operator-guide.md)를 기준으로 합니다.
+
+요청 시작 방법:
+
+1. 여러 영역이 섞였거나 담당 Agent가 불명확하면 [Platform Manager 요청 양식](agents/request-templates/platform-manager.yaml)을 사용합니다.
+2. 한 영역의 요청이면 [Agent 선택표](agents/operator-guide.md)에서 primary Agent를 고르고 [역할별 요청 양식](agents/request-templates/README.md)을 사용합니다.
+3. objective, environment, ticket, mode, in/out scope, 금지 작업, 성공 기준, 비용·시간 한도를 작성합니다.
+4. Agent 결과에서 facts/source, unknowns, risks, validation, blocker와 handoff를 확인합니다.
+5. 후속 Agent 요청은 별도로 만들고 `request_id`, ticket과 artifact를 연결합니다.
+6. Agent 결과는 사람이 검토하며 production 실행은 protected CI/CD 또는 승인된 operator만 수행합니다.
+
+Manager 요청과 단일 Monitoring 요청의 완성형 예시는 [Selecting and Requesting an Agent](agents/operator-guide.md#selecting-and-requesting-agent)에서 확인합니다.
 
 현재 저장소에는 Monitoring Agent의 read-only incident evidence collector와 로컬 `agentctl` MVP가 구현되어 있습니다. 실제 Corporate IdP, 중앙 AI Gateway, internal portal, Tool Broker, model runtime은 아직 target architecture이며, 구현된 CLI는 고정 query catalog와 fixture를 이용한 안전한 검증 경로를 제공합니다. 사용 방법과 경계는 [Read-Only Agent Incident Triage](docs/agent-incident-triage.md)를 기준으로 합니다.
 
