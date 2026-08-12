@@ -86,17 +86,15 @@ Terraform이 `desired_size` drift를 무시하는 것은 autoscaler 설치를 �
 ```mermaid
 flowchart TB
     SIG["EKS Logs · Container Insights<br/>VPC Flow Logs · Prometheus"]:::ok --> OBS["CloudWatch · Grafana"]:::ok
-    OBS --> AGENT["Monitoring Agent<br/>승인된 읽기 전용 query"]:::agent
-    AGENT --> HUMAN["운영자 검토<br/>ticket · 영향 · 원복"]:::human
-    HUMAN --> CICD["PR → Plan → 승인 → CI/CD<br/>Agent의 prod 직접 apply 금지"]:::human
-    CICD --> VERIFY["사후 검증과 보고서"]:::agent
-    BACKUP["AWS Backup · Vault Lock"]:::ok --> AGENT
+    OBS --> HUMAN["Platform Operations 검토<br/>ticket · 영향 · 원복"]:::human
+    HUMAN --> CICD["PR → Plan → 승인 → CI/CD<br/>작업 도구의 prod 직접 apply 금지"]:::human
+    CICD --> VERIFY["사후 검증과 보고서"]:::human
+    BACKUP["AWS Backup · Vault Lock"]:::ok --> HUMAN
     ALERT["Alertmanager receiver/route 미구성"]:::partial -.-> OBS
     ARCH["중앙 불변 Log Archive 미구현"]:::target -.-> OBS
     classDef ok fill:#E3FCEF,stroke:#00875A,color:#172B4D,stroke-width:2px;
     classDef partial fill:#FFF7D6,stroke:#FFAB00,color:#172B4D,stroke-width:2px;
     classDef target fill:#F4F5F7,stroke:#8993A4,color:#5E6C84,stroke-dasharray:5 5;
-    classDef agent fill:#DEEBFF,stroke:#0052CC,color:#172B4D,stroke-width:2px;
     classDef human fill:#EAE6FF,stroke:#6554C0,color:#172B4D,stroke-width:2px;
 ```
 
@@ -148,9 +146,4 @@ flowchart TB
     classDef tgw fill:#FFF7D6,stroke:#FFAB00,color:#172B4D,stroke-width:2px;
 ```
 
-환경 입력이나 subnet 계산을 변경한 후 실행합니다.
-
-```bash
-python3 scripts/validation/verify-architecture-diagram.py
-python3 scripts/validation/verify-service-network-plan.py
-```
+환경 입력이나 subnet 계산을 변경하면 Terraform 코드, Mermaid, 검색용 tree와 draw.io 원본을 함께 검토합니다.

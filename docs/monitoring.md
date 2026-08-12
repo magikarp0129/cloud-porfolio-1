@@ -4,9 +4,9 @@
 
 운영자가 장애, 성능 저하, 비용 이상 징후를 빠르게 인지하고 대응할 수 있도록 로그, 메트릭, 알람, 대시보드를 설계합니다.
 
-EKS control plane, node/runtime, workload log retention과 Kubernetes SLO/alert/runbook은 [EKS Day-2 Operations](eks-operations.md)에 상세히 정의합니다. Mimir, OpenTelemetry, custom metric, Prometheus Adapter/KEDA의 목표 구조는 [Advanced Metrics and Telemetry Platform](observability-platform.md)을 기준으로 합니다. 이 문서는 공통 알람과 workload-specific 사례를 다룹니다.
+EKS control plane, node/runtime, workload log retention과 Kubernetes SLO/alert/runbook은 [EKS Day-2 Operations](eks-operations.md)에 상세히 정의합니다. Mimir, OpenTelemetry, custom metric과 Prometheus Adapter/KEDA는 현재 범위 밖의 향후 확장 항목입니다. 이 문서는 현재 코드의 공통 알람과 workload-specific 사례를 다룹니다.
 
-지표별 query, 지속 시간, M/N 평가, missing data와 Warning/Critical 초기값의 canonical source는 [Monitoring Metric, Query and Alert Severity Policy](monitoring-alert-policy.md)입니다. 이 문서의 예시와 Agent 결과는 해당 versioned policy를 참조해야 합니다.
+지표별 query, 지속 시간, M/N 평가, missing data와 Warning/Critical 초기값의 canonical source는 [Monitoring Metric, Query and Alert Severity Policy](monitoring-alert-policy.md)입니다. 운영 보고서와 알람 rule은 해당 versioned policy를 참조해야 합니다.
 
 ## Observability Layers
 
@@ -130,28 +130,6 @@ sudo journalctl -u nginx --since '15 min ago'
 6. 완화 후 queue drain, 중복 발송, 누락 건수를 검증하고 incident timeline을 남깁니다.
 
 고객용 Kakao 발송 서비스가 실패하면 같은 경로의 운영 알림도 전달되지 않을 수 있습니다. Critical alert는 PagerDuty/전화, 독립 Slack 또는 Email처럼 별도 provider와 network path를 가진 채널로 동시에 전달합니다.
-
-## AI Gateway and Agent Observability
-
-AI 사용량은 provider별 형식을 AI Gateway에서 공통 schema로 정규화합니다.
-
-핵심 dimension:
-
-- `Account`, `Environment`, `Team`, `CostCenter`, `Application`
-- `AgentId`, `Provider`, `Model`, `Status`, `PolicyResult`
-
-핵심 metric:
-
-- request count, success/error/throttle rate
-- p50/p95 latency와 time to first token
-- input/output/cached token
-- estimated cost와 budget burn rate
-- tool-call success, approval wait time, Agent task success
-- PII/secret detection, denied model, privileged tool attempt
-
-Near-real-time metric은 CloudWatch 또는 Prometheus/Grafana에 표시하고, 상세 usage event는 Firehose와 S3에 저장해 Athena로 분석합니다. Raw prompt와 response는 기본 monitoring log에 저장하지 않습니다.
-
-상세 dashboard와 event schema는 [Enterprise AI Platform and Agent Operations](ai-platform.md)를 기준으로 합니다.
 
 ## VPC Flow Logs Troubleshooting
 

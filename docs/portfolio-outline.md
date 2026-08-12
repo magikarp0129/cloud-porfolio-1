@@ -1,105 +1,94 @@
-# 포트폴리오 PDF 구성
+# Portfolio PDF Outline
 
-## 작성 기준
+## 작성 목표
 
-- 루트 `README.md`의 흐름을 PDF 서사의 기준으로 사용합니다.
-- 독자가 `왜 필요한가 → 어떤 경계로 설계했는가 → 무엇을 구현했는가 → 무엇이 남았는가 → 어떤 증거가 있어야 완료인가`를 순서대로 이해할 수 있어야 합니다.
-- 각 장은 설명 문단으로 맥락을 먼저 제공하고, 표와 간단한 계층도로 수치와 ownership을 확인하게 합니다.
-- Terraform 코드에 있는 항목, 정의된 정책, 목표 아키텍처와 실제 운영 evidence를 명시적으로 구분합니다.
-- 실제 AWS 배포, 비용 절감이나 MTTR 개선으로 오해할 수 있는 표현을 사용하지 않습니다.
-- 세부 기준을 여러 문서에 복사하지 않고 README와 domain canonical 문서를 요약·참조합니다.
-- AWS, Terraform, EKS와 resource 이름은 원문 표기를 유지하고 설명은 한국어로 작성합니다.
-- A4 보고서 형식, 충분한 행간, 일관된 장 제목, 머리말, 페이지 번호와 bookmark를 유지합니다.
+- AWS Landing Zone, Terraform과 EKS가 본문 중심이어야 합니다.
+- 독자가 `요구사항 → 설계 판단 → 코드 범위 → 미구현 → 필요한 증거` 순서로 이해할 수 있어야 합니다.
+- 목차에는 장과 세부 절을 모두 표시합니다.
+- 설명 문단으로 맥락을 먼저 제공하고 표와 텍스트 계층도로 수치·ownership을 확인합니다.
+- 코드 존재, 로컬 검토, 실제 배포와 운영 증적을 구분합니다.
+- 실제 AWS 배포, 비용 절감이나 가용성 성과로 오해할 표현을 사용하지 않습니다.
+- README와 domain 문서를 복제하지 않고 포트폴리오 독자에게 필요한 요약만 사용합니다.
 
-## 작성 정보
+## 목차
 
-- 작성자가 엔터프라이즈 AWS architecture와 최종 구성을 정의합니다.
-- OpenAI Codex는 코드 분석, 원고 작성, 일관성 확인과 PDF 제작을 보조합니다.
-- AI가 작성한 내용은 Terraform 코드, README와 canonical 문서를 기준으로 다시 검증합니다.
-
-## 목차와 독자 흐름
-
-### 1. 프로젝트 목표
+### 1. 프로젝트 개요
 
 - 포트폴리오가 답하는 질문
-- AWS, Terraform, EKS, Observability, Operations, FinOps, Security/Identity, AI/Agent와 Documentation/Validation으로 나눈 Target Scope
-- 전체 구축 흐름과 핵심 범위
-- 저장소 구현과 실제 배포의 구분
+- 환경 3, 서비스 5, VPC 15, subnet tier 7, module 17의 의미
+- 중심 범위와 단순화한 범위
 
-### 2. 범위와 증거를 읽는 방법
+### 2. 증거와 완료 상태를 읽는 방법
 
-- Current, Defined, Target, Evidence
-- fixture, schema, template과 production evidence 경계
+- Code, Reviewed, Deployed, Operational Evidence
+- 현재 주장하는 것과 주장하지 않는 것
 
-### 3. 저장소 구조와 권장 탐색 순서
+### 3. Target Cloud Architecture
 
-- README, AGENTS, docs, Terraform과 runtime 역할
-- 질문별 시작 문서와 구축·검토 순서
+- Organizations와 account 역할
+- 중앙 ingress/egress, TGW와 private spoke
+- 공통 platform VPC와 service VPC
 
-### 4. Multi-Agent Operating Model
+### 4. Landing Zone
 
-- Human → Cloud Platform Manager → Domain Lead → Specialist의 4단계 조직도와 총 11개 Agent 역할
-- Human-led, Agent-assisted 실행 흐름
-- read/draft/plan/review와 protected CI/CD 경계
+- IPAM `10.64.0.0/10`
+- TGW, RAM과 route-table domain
+- 다른 account와의 통신 경계
 
-### 5. Target Cloud Architecture
+### 5. 서비스 네트워크와 IP 설계
 
-- Organizations, Landing Zone, workload와 EKS 전체 계층
-- dev/stg/prod 운영 의도
-- Workforce Identity와 AI Platform의 목표 경계
+- 5개 서비스의 dev/stg/prod CIDR
+- 7개 private subnet tier
+- commerce-prod AZ별 상세 예시
 
-### 6. Landing Zone과 서비스 네트워크
+### 6. Terraform 구조와 변경 관리
 
-- IPAM, TGW, RAM과 routing domain
-- 공통 환경 VPC와 7개 subnet tier
-- 5개 서비스의 15개 VPC와 현재 생성 범위
+- organization, landing-zone, service, environment와 platform state
+- 17개 reusable module group
+- 적용 순서, plan 승인과 rollback
 
-### 7. Terraform Implementation Strategy
+### 7. Private EKS와 Kubernetes Platform
 
-- root, state와 module ownership
-- 적용 순서와 변경 승인
-- 하나의 object를 두 state가 관리하지 않는 원칙
+- EKS 1.35, private API, node/add-on과 Pod Identity
+- Cluster, Node, Pod subnet 분리
+- Istio, Prometheus/Grafana, quota와 PriorityClass
+- autoscaling, PDB와 NetworkPolicy gap
 
-### 8. EKS와 Kubernetes Platform
+### 8. Monitoring, Security and Governance
 
-- Private EKS 1.35, Access Entry, KMS와 managed add-on
-- 환경별 node group과 VPC CNI custom networking
-- Istio, quota, PriorityClass와 autoscaling/PDB의 현재 경계
+- log/metric 수집과 retention
+- IAM, KMS, detection과 WAF
+- OU, SCP와 정책 승격
 
-### 9. Monitoring and Alerting
+### 9. Operations and FinOps
 
-- CloudWatch와 Prometheus 신호 흐름
-- 로그·metric 보존과 주요 severity
-- 현재 Alertmanager, central archive와 Mimir 상태
+- backup, scheduler, patch와 EOS
+- Budget, Cost Anomaly와 비용 검증
+- 월간·장애 보고서 양식
 
-### 10. Operations Strategy
+### 10. 협업과 승인 경계
 
-- tag, backup, scheduler, patch와 CVE/EOS
-- read-only Linux, EKS와 AWS 점검 도구
+- 역할별 전문 검토
+- 사람 승인과 protected deployment
+- 코드와 production 실행의 분리
 
-### 11. FinOps Strategy
+### 11. 저장소 탐색
 
-- 환경별 budget와 Cost Anomaly
-- 비용 귀속, scheduler와 절감 효과 검증 기준
+- 최소화된 디렉터리 구조
+- 질문별 코드 시작 위치
+- PDF source, builder와 verifier
 
-### 12. Security and Governance
+### 12. 다음 단계
 
-- IAM, network, encryption, detection과 WAF
-- OU, SCP, Tag Policy
-- production 전 잔여 위험
+- 현재 코드 산출물
+- 삭제·단순화한 자산
+- sandbox plan/apply/restore 우선순위
+- production promotion gate
 
-### 13. 현재 구현과 검증 상태
+## 시각 품질 기준
 
-- 현재 저장소 산출물
-- Agent test, Terraform validation, policy와 report 검증의 의미
-- 로컬 시험이 증명하지 않는 범위
-
-### 14. 다음 구현 단계
-
-- sandbox evidence, central audit, EKS ingress와 WAF
-- Mimir, OpenTelemetry, autoscaling, Identity Center와 AI Gateway
-
-### 15. Definition of Done과 Production Promotion Gate
-
-- 저장소 산출물의 완료 기준
-- 실제 production 승격에 필요한 plan, 승인, health와 rehearsal evidence
+- A4, 한글 본문 10pt, 충분한 행간과 일관된 여백
+- 장 제목은 새 페이지에서 시작
+- 표는 한 페이지 폭을 넘지 않고 반복 header를 사용
+- 빈 페이지, 잘림, 겹침과 깨진 한글이 없어야 함
+- 모든 페이지를 PNG로 렌더링해 확인

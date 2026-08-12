@@ -39,7 +39,7 @@ draw.io 구성도는 다음 여섯 페이지로 나뉩니다.
 | 보안과 IAM | `terraform/modules/security`, `terraform/modules/iam` |
 | EKS와 로그 | `terraform/modules/eks` |
 | Kubernetes platform | `terraform/environments/*/platform`, `terraform/modules/kubernetes-platform` |
-| 관측성 | `terraform/modules/observability`, `terraform/modules/monitoring-agent-access` |
+| 관측성 | `terraform/modules/observability`, `terraform/modules/kubernetes-platform` |
 | 백업·일정·패치 | `terraform/modules/operations` |
 | 예산·비용 이상 탐지 | `terraform/modules/cost` |
 | 중앙 IPAM | `terraform/landing-zone/ipam` |
@@ -51,10 +51,4 @@ draw.io 구성도는 다음 여섯 페이지로 나뉩니다.
 
 diagrams.net 데스크톱 또는 웹 편집기에서 `aws-infrastructure.drawio`를 엽니다. 원본은 압축되지 않은 XML 형식이므로 코드 리뷰에서 label과 연결 변경을 확인할 수 있습니다.
 
-Terraform의 환경 값이나 모듈 연결을 바꿀 때는 구성도를 함께 수정한 뒤 다음 검증을 실행합니다.
-
-```bash
-python3 scripts/validation/verify-architecture-diagram.py
-```
-
-이 검증은 XML 구조, draw.io 여섯 페이지, Mermaid 일곱 개 구성도와 Markdown 트리의 존재 여부를 확인합니다. 환경별 VPC·AZ·Landing Zone TGW·EKS 버전·로그 보존·Prometheus·백업·Scheduler 값과 서비스 VPC의 `LB/AP/DB/Node/Pod/TGW/EKS Cluster` 7개 tier, 기업 CIDR, 5개 서비스와 stable AZ ID를 대조합니다. 세부 서비스 CIDR 중복과 subnet 계산은 `scripts/validation/verify-service-network-plan.py`가 별도로 검증합니다.
+Terraform의 환경 값이나 모듈 연결을 바꿀 때는 Mermaid, Markdown tree와 draw.io 원본을 함께 수정합니다. 환경별 VPC·AZ·TGW·EKS 버전·로그 보존·Prometheus·백업·Scheduler 값과 서비스 VPC의 7개 subnet tier를 Terraform diff와 대조합니다. 자동 동기화 검증기는 단순화 과정에서 제거했으며, 새 CI 설계 시 코드에서 값을 추출하는 방식으로 다시 추가합니다.

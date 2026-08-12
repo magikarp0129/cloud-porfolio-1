@@ -31,21 +31,3 @@ variable "eks_admin_principal_arns" {
   description = "IAM role ARNs granted EKS administrator access."
   type        = set(string)
 }
-
-variable "monitoring_agent_trusted_principal_arns" {
-  description = "Central Tool Broker principal ARNs trusted by the production diagnostic role."
-  type        = list(string)
-  default     = []
-}
-
-variable "monitoring_agent_additional_log_group_arns" {
-  description = "Production workload log group ARNs available to approved incident query templates."
-  type        = set(string)
-  default     = []
-}
-
-variable "monitoring_agent_permissions_boundary_arn" {
-  description = "Optional IAM permissions boundary for the production diagnostic role."
-  type        = string
-  default     = null
-}

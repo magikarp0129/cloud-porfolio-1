@@ -6,7 +6,7 @@
 
 이 문서에서 제시하는 보존 기간과 SLO 숫자는 포트폴리오의 **초기 운영 기준**입니다. 실제 운영 적용 전 service owner, Data owner, Security, Compliance가 업무 중요도와 법적 의무를 근거로 승인해야 합니다. 규제 또는 계약 기준이 더 엄격하면 그 기준을 우선합니다.
 
-Agent는 분석, 문서, patch, plan, review artifact까지만 만듭니다. `prod`의 `apply`, 재시작, drain, failover, restore, alarm suppression은 ticket, 사람 승인, protected CI/CD 또는 승인된 runbook으로만 실행합니다. 공통 실행 경계는 [Multi-Agent Operator Guide](../agents/operator-guide.md)를 따릅니다.
+`prod`의 `apply`, 재시작, drain, failover, restore와 alarm suppression은 ticket, 사람 승인, protected CI/CD 또는 승인된 runbook으로만 실행합니다. 공통 변경 경계는 [AGENTS.md](../AGENTS.md)와 [Terraform Change Management](terraform-change-management.md)를 따릅니다.
 
 ## 2. 현재 구현과 목표 상태
 
@@ -34,18 +34,18 @@ Agent는 분석, 문서, patch, plan, review artifact까지만 만듭니다. `pr
 | --- | --- |
 | Platform owner | EKS control plane, node group, CNI/CSI/CoreDNS, namespace baseline, capacity와 upgrade 총괄 |
 | Service owner | workload requests/limits, probes, HPA, PDB, topology, 애플리케이션 SLO와 runbook |
-| Operations Agent/운영팀 | 백업, restore drill, node lifecycle, patch/CVE/EOS, 장애 복구안과 증적 |
-| Monitoring Agent/SRE | 로그·메트릭·trace pipeline, dashboard, SLI/SLO, 알람과 on-call routing |
-| Security Agent/보안팀 | Access Entry/RBAC, Pod Identity, PSS, NetworkPolicy, KMS, image/runtime control, 침해 대응 |
-| FinOps Agent/FinOps | 비용 label, CUR split cost, rightsizing, telemetry·data transfer 비용 검토 |
-| CI/CD Agent/배포팀 | 검증, plan artifact, policy gate, 환경 승격, 승인된 변경의 실행 |
+| Operations team | 백업, restore drill, node lifecycle, patch/CVE/EOS, 장애 복구안과 증적 |
+| SRE/Monitoring | 로그·메트릭·trace pipeline, dashboard, SLI/SLO, 알람과 on-call routing |
+| Security team | Access Entry/RBAC, Pod Identity, PSS, NetworkPolicy, KMS, image/runtime control, 침해 대응 |
+| FinOps | 비용 label, CUR split cost, rightsizing, telemetry·data transfer 비용 검토 |
+| Deployment team | 검증, plan artifact, policy gate, 환경 승격, 승인된 변경의 실행 |
 | Data owner | 데이터 등급, RPO/RTO, 보존·삭제, 복구 데이터 접근 승인 |
 | Incident commander | 장애 등급, 완화·복구 승인, 이해관계자 소통, 종료 판단 |
-| Reviewer Agent | 변경 위험, rollback 가능성, 누락된 검증과 운영 증적의 독립 검토 |
+| Independent reviewer | 변경 위험, rollback 가능성, 누락된 검증과 운영 증적의 독립 검토 |
 
 ### 3.2 RACI matrix
 
-`R`은 수행, `A`는 최종 책임/승인, `C`는 사전 협의, `I`는 결과 공유입니다. Agent의 `A` 표기는 설계 품질 책임이며 production 실행 승인을 의미하지 않습니다.
+`R`은 수행, `A`는 최종 책임/승인, `C`는 사전 협의, `I`는 결과 공유입니다.
 
 | 활동 | Platform | Service | Operations | Monitoring | Security | FinOps | CI/CD | Data/IC |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -354,7 +354,7 @@ business load → application metric → HPA replica → unschedulable Pod
 | Application | OpenTelemetry SDK 또는 기존 Prometheus exporter | traffic, error, latency, saturation; trace backend는 별도 |
 | Synthetic/business | 독립 canary와 business counter | 실제 고객 경로 성공과 누락/중복 |
 
-Current Prometheus retention은 `dev=7일`, `stg=15일`, `prod=30일`이고 `amazon-cloudwatch-observability` add-on도 기본 활성화되어 있습니다. 이 구성은 metric/log source가 존재한다는 evidence이지만 SLO, 외부 Alertmanager receiver route, 장기 capacity trend가 완성되었다는 evidence는 아닙니다. Target은 local Prometheus를 scrape·fast alert·HPA 계층으로 유지하고 중앙 Mimir에 remote write해 dev/stg/prod metric을 30/90/400일 보존합니다. 신규 custom metric은 OpenTelemetry Metrics API/SDK를 사용하며 Prometheus Adapter와 KEDA의 제어 경계를 분리합니다. 상세 설계와 production gate는 [Advanced Metrics and Telemetry Platform](observability-platform.md)을 기준으로 합니다. Container Insights의 cluster/node/pod/service metric은 [Container Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html), [EKS metric catalog](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Container-Insights-metrics-EKS.html)을 기준으로 검증합니다.
+Current Prometheus retention은 `dev=7일`, `stg=15일`, `prod=30일`이고 `amazon-cloudwatch-observability` add-on도 기본 활성화되어 있습니다. 이 구성은 metric/log source가 존재한다는 evidence이지만 SLO, 외부 Alertmanager receiver route와 장기 capacity trend가 완성되었다는 evidence는 아닙니다. 중앙 Mimir, OpenTelemetry와 Prometheus Adapter/KEDA는 현재 범위 밖의 향후 확장 항목입니다. Container Insights의 cluster/node/pod/service metric은 [Container Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html), [EKS metric catalog](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Container-Insights-metrics-EKS.html)을 기준으로 검증합니다.
 
 ### 7.2 SLI/SLO catalog
 
@@ -632,7 +632,7 @@ Output에는 secret, token, environment dump를 첨부하지 않습니다. `kube
 
 ## 13. 변경과 승인
 
-| 변경 | 필수 artifact | Agent review | 사람 승인 | 실행 |
+| 변경 | 필수 artifact | 전문 검토 | 사람 승인 | 실행 |
 | --- | --- | --- | --- | --- |
 | requests/limits, HPA, PDB | 부하 시험, 전후 metric, quota, rollback | Monitoring, Operations, Reviewer | Service + Platform owner | app CI/CD |
 | LimitRange/ResourceQuota/PriorityClass | namespace 영향, dry-run/admission test | Platform, Security, Reviewer | Platform owner | protected platform pipeline |

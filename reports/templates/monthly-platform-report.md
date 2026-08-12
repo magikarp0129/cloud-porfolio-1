@@ -14,7 +14,7 @@
 | Data classification | `<internal|confidential|restricted>` |
 | Repository revision | `<commit/tag>` |
 | Policy/KPI version | `<version/hash>` |
-| Prepared by | `<team/Agent + human owner>` |
+| Prepared by | `<responsible team and human owner>` |
 | Reviewed by | `<Platform/Security/FinOps/service owners>` |
 | Approved by | `<authenticated approval reference>` |
 
@@ -83,14 +83,14 @@
 
 예상 절감, 승인된 절감안, 구현 결과와 invoice에서 확인된 실현 절감을 분리합니다.
 
-## 9. Agent and Automation Quality
+## 9. Automation and Data Quality
 
 | KPI | Value/sample | Guardrail | Disposition | Evidence |
 | --- | ---: | --- | --- | --- |
-| Evidence-backed fact rate | `<value/n>` | `<policy>` | `<result/action>` | `<refs>` |
-| Material human correction | `<value/n>` | `<threshold>` | `<reason>` | `<refs>` |
-| Unsafe tool/scope attempt | `<count>` | `0` | `<incident/action>` | `<refs>` |
-| Secret/PII canary failure | `<count>` | `0` | `<incident/action>` | `<refs>` |
+| Collection coverage | `<value/n>` | `<policy>` | `<result/action>` | `<refs>` |
+| Missing or stale source | `<value/n>` | `<threshold>` | `<reason>` | `<refs>` |
+| Failed automation | `<count>` | `<threshold>` | `<incident/action>` | `<refs>` |
+| Secret/PII handling failure | `<count>` | `0` | `<incident/action>` | `<refs>` |
 
 ## 10. Decisions and Next-Period Actions
 
@@ -112,4 +112,3 @@
 | Security/Reviewer | `<identity>` | `<approve/reject>` | `<UTC>` |
 | FinOps/Finance | `<identity>` | `<approve/reject/not_required>` | `<UTC>` |
 | Service owner | `<identity>` | `<approve/reject>` | `<UTC>` |
-

@@ -112,12 +112,12 @@ module "inspection_routes" {
 ## 6. Change Workflow
 
 1. 요청자는 source, destination, protocol/port, 업무 목적, owner, expiry, rollback 조건을 ticket에 기록합니다.
-2. Terraform Agent는 기존 map에 semantic key로 rule 또는 route를 추가합니다.
-3. CI/CD Agent는 `fmt`, `validate`, lint/security scan과 speculative plan을 생성합니다.
-4. Security Agent는 least privilege, public exposure, overlapping CIDR을 검토합니다.
+2. Platform Engineering은 기존 map에 semantic key로 rule 또는 route를 추가합니다.
+3. Protected CI/CD는 `fmt`, `validate`, lint/security scan과 speculative plan을 생성합니다.
+4. Security 담당자가 least privilege, public exposure와 overlapping CIDR을 검토합니다.
 5. Network 또는 Service CODEOWNER가 plan의 create/update/delete를 승인합니다.
 6. 동일 commit을 `dev`, `stg`, `prod` 순서로 승격하고 production environment approval을 받습니다.
-7. Monitoring Agent는 reject flow, 5xx, latency, connection error를 변경 전후 비교합니다.
+7. Platform Operations는 reject flow, 5xx, latency와 connection error를 변경 전후 비교합니다.
 
 Plan에서 의도하지 않은 전체 rule 교체, route table 교체, 많은 address 이동이 보이면 적용을 중지합니다. 일상 배포에 `-target`을 사용하지 않습니다.
 

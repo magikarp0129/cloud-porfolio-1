@@ -28,7 +28,7 @@ def main() -> int:
         "--from=markdown+raw_tex+pipe_tables+fenced_code_blocks",
         "--standalone",
         "--toc",
-        "--toc-depth=1",
+        "--toc-depth=2",
         "--number-sections",
         f"--include-in-header={HEADER}",
         "--pdf-engine=xelatex",

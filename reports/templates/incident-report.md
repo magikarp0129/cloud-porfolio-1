@@ -1,6 +1,6 @@
 # Incident Report
 
-> 상태: 템플릿. Monitoring Agent의 구조화 결과는 `schemas/incident-report.schema.json`을 따르고, 이 문서는 Incident Commander와 운영자가 검토하는 사람용 보고서입니다.
+> 상태: 템플릿. Incident Commander와 운영팀이 실제 증적을 확인하여 작성하고 승인하는 사람용 보고서입니다.
 
 ## 1. Incident Metadata
 
@@ -83,7 +83,7 @@
 | --- | --- | --- | --- | --- | --- |
 | `<timestamp or none>` | `<action>` | `<identity>` | `<reference>` | `<result>` | `<state>` |
 
-Monitoring Agent의 read-only 보고서는 `executed_mutations=[]`이며 실행 조치를 주장하지 않습니다.
+조회 결과와 실제 실행 조치를 분리하고, 실행자·승인·시각·결과가 없는 조치는 실행된 것으로 기록하지 않습니다.
 
 ### Recovery validation
 
@@ -118,4 +118,3 @@ Monitoring Agent의 read-only 보고서는 `executed_mutations=[]`이며 실행 
 | Incident Commander | `<identity>` | `<approve/reopen>` | `<UTC>` |
 | Service owner | `<identity>` | `<approve/reopen>` | `<UTC>` |
 | Security/Reviewer | `<identity>` | `<approve/follow-up>` | `<UTC>` |
-

@@ -33,8 +33,7 @@ workload-environment
 │   └── Public subnet · Internet Gateway · NAT Gateway 없음
 ├── security / IAM
 ├── observability / operations / cost
-├── EKS foundation
-└── monitoring-agent-access
+└── EKS foundation
 ```
 
 ## 3. 환경별 차이
@@ -101,10 +100,10 @@ AWS Load Balancer Controller와 Cluster Autoscaler/Karpenter는 현재 controlle
 ## 6. 관측·운영 흐름
 
 ```text
-EKS/Container/VPC Flow Logs → CloudWatch → Monitoring Agent 읽기 전용 query
+EKS/Container/VPC Flow Logs → CloudWatch → Platform Operations 검토
 Prometheus → Grafana → Alertmanager(receiver/route 미구성)
 운영자 검토 → PR → Plan → 승인 → 보호된 CI/CD
-Agent의 prod 직접 apply 금지
+작업 도구의 prod 직접 apply 금지
 ```
 
 ## 7. 서비스 Landing Zone

@@ -29,10 +29,6 @@ Public subnet, Internet Gateway와 workload VPC NAT Gateway는 생성하지 않�
 
 사람의 AWS 접근은 IAM user와 장기 access key 대신 `Corporate IdP → IAM Identity Center → Permission Set → AWS Account` 흐름을 사용합니다. 상세 설계는 [Enterprise Workforce Identity and AWS Account Access](identity-access.md)를 기준으로 합니다.
 
-## AI Platform Plane
-
-Agent 실행은 Infrastructure OU의 전용 AI Platform account에 중앙화하고, 코드 변경은 pull request와 plan으로 제출합니다. production 배포는 protected CI/CD가 수행합니다. 상세 설계는 [Enterprise AI Platform and Agent Operations](ai-platform.md)를 기준으로 합니다.
-
 ## EKS Platform Plane
 
 EKS는 세 lifecycle로 분리합니다.

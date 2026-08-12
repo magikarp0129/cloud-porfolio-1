@@ -2,14 +2,14 @@
 
 ## 목적과 적용 경계
 
-이 문서는 Monitoring Agent, CloudWatch Alarm, Prometheus rule과 운영자가 동일한 지표·질의·지속 시간·등급 기준을 사용하기 위한 공통 기준입니다. 기계 판독 가능한 초기값은 `config/monitoring/alert-policy.example.json`에 둡니다.
+이 문서는 CloudWatch Alarm, Prometheus rule과 운영자가 동일한 지표·질의·지속 시간·등급 기준을 사용하기 위한 공통 기준입니다.
 
-현재 저장소에는 read-only Monitoring Agent와 query adapter가 구현되어 있지만 이 정책 파일을 실제 CloudWatch Alarm 또는 PrometheusRule로 배포하는 연결은 아직 목표 단계입니다. 따라서 `documented_target`을 `implemented`로 해석하지 않습니다. production 적용 전 서비스 owner가 SLO, 정상·peak 시간대의 2~4주 baseline, 자원 요청값과 실제 장애 이력을 검토해야 합니다.
+일부 CloudWatch alarm resource는 Terraform에 있지만 아래 전체 정책을 실제 Alarm 또는 PrometheusRule로 배포한 것은 아닙니다. production 적용 전 서비스 owner가 SLO, 정상·peak 시간대의 2~4주 baseline, 자원 요청값과 실제 장애 이력을 검토해야 합니다.
 
 | 상태 | 의미 |
 | --- | --- |
-| `documented_target` | metric math 또는 rule의 설계만 존재하며 Runtime에서 아직 실행할 수 없음 |
-| `query_catalog_ready` | 고정 query ID와 bounded query가 Runtime 예제에 등록됨. Prometheus source는 기본 비활성이며 알람 rule도 미배포 |
+| `documented_target` | metric math 또는 rule의 설계만 존재함 |
+| `terraform_defined` | 일부 CloudWatch alarm이 Terraform에 정의되었지만 실제 통지 시험은 없음 |
 | `implemented` | 실제 datasource, rule, route와 test alarm 증적까지 확인된 상태. 현재 이 정책에는 해당 항목 없음 |
 
 ## 평가 원칙
@@ -98,22 +98,13 @@ CPU 사용률 80%는 CPU limit 80%와 같지 않습니다. Host는 전체 CPU �
 
 CloudWatch에서 1분 period로 10분 지속을 표현할 때는 예를 들어 10개 평가 구간 중 8개 위반을 Warning으로 사용합니다. Critical은 5개 중 5개처럼 짧고 확실한 지속 조건을 적용할 수 있습니다. 각 metric의 발행 특성에 맞게 `treat_missing_data`를 명시하고, sparse event metric과 continuous utilization metric을 같은 방식으로 처리하지 않습니다.
 
-## Monitoring Agent 실행과 출력 계약
+## 운영 검토 기록
 
-운영자는 자유 형식 PromQL이나 Logs Insights query를 전달하지 않고 server-owned `query_id`를 선택합니다. Agent는 다음 순서로 판단합니다.
-
-1. account, environment, region, service와 조회 시간을 registry와 대조합니다.
-2. query catalog의 metric·dimension·집계 방식과 policy version을 report에 기록합니다.
-3. Warning/Critical 지속 조건을 충족한 datapoint 수와 missing datapoint를 계산합니다.
-4. 같은 시간대의 deployment, error, latency, queue와 saturation을 상관 분석합니다.
-5. 사실, severity 판단, 가설, 확인 불가능한 증거와 다음 안전한 query를 분리합니다.
-6. Agent는 alarm suppression, restart, scale 또는 production 변경을 실행하지 않습니다.
-
-표준 결과에는 다음 열이 포함되어야 합니다.
+알람을 검토할 때는 다음 정보를 ticket 또는 장애 보고서에 남깁니다.
 
 | 항목 | 예시 |
 | --- | --- |
-| Query identity | `host_cpu_utilization_percent`, policy version, source revision |
+| Query identity | metric/query 이름, policy version, source revision |
 | 관측 범위 | prod, service, node/pod, UTC 시작·종료, sample 수 |
 | 평가 | 최대 92%, 10개 중 9개가 80% 이상, Warning 충족 |
 | 관련 신호 | latency 정상, error 정상, throttling 3%, deployment 없음 |
@@ -122,13 +113,12 @@ CloudWatch에서 1분 period로 10분 지속을 표현할 때는 예를 들어 1
 
 ## 검증과 조정 절차
 
-1. `python3 scripts/validation/validate-monitoring-alert-policy.py`로 필수 필드, query ID 중복, M/N과 threshold 역전을 검사합니다.
-2. Prometheus `promtool check rules` 또는 CloudWatch sandbox alarm으로 문법과 evaluation을 검증합니다.
-3. 정상·peak·배포·장애 fixture를 replay해 Warning/Critical/복구 상태와 missing data 처리를 확인합니다.
-4. dev에서 CPU stress, memory pressure, 임시 disk fill과 exporter 중단을 안전한 한도에서 수행합니다.
-5. 원본 dashboard와 Agent report를 표본 대조하고 false positive, false negative와 운영자 수정률을 기록합니다.
-6. 2~4주 후 서비스별 p95/p99 baseline, SLO와 incident 결과로 threshold를 조정하고 policy version을 증가시킵니다.
-7. production 반영은 Monitoring, service owner, Security/Operations review와 protected CI/CD를 통과합니다.
+1. Prometheus `promtool check rules` 또는 CloudWatch sandbox alarm으로 문법과 evaluation을 검증합니다.
+2. 정상·peak·배포·장애 시나리오로 Warning/Critical/복구 상태와 missing data 처리를 확인합니다.
+3. dev에서 CPU stress, memory pressure, 임시 disk fill과 exporter 중단을 안전한 한도에서 수행합니다.
+4. 원본 dashboard와 운영 보고서를 표본 대조하고 false positive와 false negative를 기록합니다.
+5. 2~4주 후 서비스별 p95/p99 baseline, SLO와 incident 결과로 threshold를 조정하고 policy version을 증가시킵니다.
+6. production 반영은 Monitoring, service owner와 Security/Operations review를 통과합니다.
 
 ## 참고 기준
 

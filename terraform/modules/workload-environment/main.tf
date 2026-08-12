@@ -79,37 +79,3 @@ module "eks" {
   container_log_retention_days                = var.eks_container_log_retention_days
   node_groups                                 = var.eks_node_groups
 }
-
-locals {
-  monitoring_agent_foundation_log_group_arns = setunion(
-    toset([module.observability.vpc_flow_log_group_arn]),
-    var.enable_eks ? toset(concat(
-      [module.eks[0].control_plane_log_group_arn],
-      module.eks[0].container_insights_log_group_arns,
-    )) : toset([]),
-  )
-}
-
-module "monitoring_agent_access" {
-  source = "../monitoring-agent-access"
-
-  name                     = var.name
-  trusted_principal_arns   = var.monitoring_agent_trusted_principal_arns
-  permissions_boundary_arn = var.monitoring_agent_permissions_boundary_arn
-  cloudwatch_log_group_arns = setunion(
-    local.monitoring_agent_foundation_log_group_arns,
-    var.monitoring_agent_additional_log_group_arns,
-  )
-  enable_logs_insights = true
-  eks_cluster_arns     = var.enable_eks ? toset([module.eks[0].cluster_arn]) : toset([])
-  enable_eks_describe  = var.enable_eks
-}
-
-resource "aws_eks_access_entry" "monitoring_agent" {
-  count = var.enable_eks && length(var.monitoring_agent_trusted_principal_arns) > 0 ? 1 : 0
-
-  cluster_name      = module.eks[0].cluster_name
-  principal_arn     = module.monitoring_agent_access.role_arn
-  kubernetes_groups = ["monitoring-agent-readers"]
-  type              = "STANDARD"
-}

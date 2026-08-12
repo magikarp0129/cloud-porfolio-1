@@ -6,10 +6,10 @@
 
 ```text
 network/TGW -> security/IAM -> observability
-        -> operations/cost -> EKS -> monitoring-agent-access
+        -> operations/cost -> EKS
 ```
 
-주요 output은 VPC ID, 7개 private subnet tier, TGW attachment, EKS cluster security group, alarm topic, EKS cluster name, Backup vault와 Monitoring Agent role ARN입니다. Environment root가 CIDR, AZ, Landing Zone TGW, endpoint, budget, scheduler, backup, EKS version·log retention·node group과 trust principal을 전달합니다.
+주요 output은 VPC ID, 7개 private subnet tier, TGW attachment, EKS cluster security group, alarm topic, EKS cluster name과 Backup vault입니다. Environment root가 CIDR, AZ, Landing Zone TGW, endpoint, budget, scheduler, backup, EKS version·log retention과 node group을 전달합니다.
 
 EKS control-plane/Container Insights log retention과 managed node group lifecycle 입력을 environment root에서 전달합니다. Kubernetes namespace quota, LimitRange, PriorityClass와 선택적 PDB는 private cluster 접근이 필요한 별도 `platform/` root가 소유합니다. 상세 경계는 [EKS Day-2 Operations](../../../docs/eks-operations.md)를 따릅니다.
 

@@ -2,7 +2,7 @@
 
 ## Review Scope
 
-검토 범위는 AWS Organizations/SCP, IAM trust policy, KMS, network, EKS, operations automation, observability, FinOps module입니다. 2026-08-08 기준 Terraform 1.15.3, AWS provider 5.100.0, Kubernetes provider 2.38.0 schema로 모든 root module을 검증했습니다.
+검토 범위는 AWS Organizations/SCP, IAM trust policy, KMS, network, EKS, operations, observability와 FinOps module의 정적 코드입니다. 실제 account plan/apply와 2026-08-12 단순화 이후 모든 root의 clean validate 증적은 아직 없습니다.
 
 ## Implemented Controls
 

@@ -33,19 +33,6 @@
 | Optimization | Right sizing and unused resource review |
 | Reporting | Monthly service and owner cost report |
 
-## AI Token and Model Cost Governance
-
-AI Gateway가 모든 model 호출의 input/output/cached token과 provider별 추가 과금을 공통 usage event로 기록합니다.
-
-- 비용은 `CostCenter`, `Team`, `Application`, `Environment`, `AgentId`, `Model` 기준으로 배부합니다.
-- user sandbox에는 일별 token과 concurrency 한도를 적용합니다.
-- team과 application에는 월별 USD budget 및 RPM/TPM quota를 적용합니다.
-- gateway의 실시간 추정 비용은 versioned model price catalog를 사용합니다.
-- 추정 비용은 AWS CUR 또는 provider invoice와 일별 대사합니다.
-- 예산 50/80/100 percent와 일별 spend anomaly를 알림으로 연결합니다.
-
-Token dashboard와 비용 계산 방식은 [Enterprise AI Platform and Agent Operations](ai-platform.md)를 기준으로 합니다.
-
 ## Review Cadence
 
 - Daily: budget and anomaly alerts

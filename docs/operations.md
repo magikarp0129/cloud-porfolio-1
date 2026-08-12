@@ -4,19 +4,11 @@
 
 클라우드 인프라를 배포한 이후에도 안정적으로 운영할 수 있도록 백업, 스케줄링, 패치, 취약점, OS lifecycle, 패키지 관리 전략을 정의합니다.
 
-## Read-Only Operations Evidence
+## Operations Evidence
 
-운영자는 변경 전에 현재 상태와 위험을 증적으로 남겨야 합니다. [운영 및 검증 스크립트](../scripts/README.md)는 다음 읽기 전용 점검을 구현합니다.
+운영자는 변경 전에 현재 상태와 위험을 ticket에 남기고, 변경 후 같은 관측 범위로 결과를 비교합니다. 최소 증적은 UTC window, account/environment, 실행자, 사용한 query나 명령, 원본 저장 위치와 무결성 참조를 포함합니다.
 
-- Linux 호스트의 CPU, 메모리, 파일시스템, inode, 프로세스, 실패한 systemd unit과 오류 journal 수집
-- 트래픽 급증 시 `ss`/`netstat` 기반 socket state·queue, retransmit, interface drop, softnet와 conntrack 증적 수집
-- CPU·메모리 급증 시 `top`, `vmstat`, PSI, swap·OOM, 파일 디스크립터, disk·inode와 I/O latency 증적 수집
-- 특정 systemd 서비스의 상태, MainPID, 프로세스 자원, 소켓과 journal 증적 수집
-- 로컬 패키지 metadata 기준 업데이트 후보, 보안 권고와 재부팅 필요 여부 확인
-- 명시한 kubeconfig context의 노드, 비정상 Pod, workload, PDB, HPA, PVC와 이벤트 확인
-- CloudWatch Logs의 보존 기간과 KMS 구성 감사
-
-증상별 실행 순서, queue와 자원 지표 해석, Warning/Critical 출발점은 [Linux 장애 분석 스크립트와 판단 가이드](../scripts/operations/linux/README.md)를 기준으로 합니다. 스크립트는 패치 설치, 서비스 재시작, Kubernetes 변경, AWS 변경 API를 실행하지 않습니다. 발견 사항은 티켓과 증적 파일에 연결하고 Terraform 또는 보호된 변경 절차로 전달합니다.
+이 저장소에는 호스트·EKS·AWS 진단 스크립트를 포함하지 않습니다. 실제 운영 도구는 대상 환경, 권한, 민감정보 처리와 보존 정책이 확정된 뒤 별도 runbook 또는 운영 저장소에서 관리합니다.
 
 ## Backup Strategy
 

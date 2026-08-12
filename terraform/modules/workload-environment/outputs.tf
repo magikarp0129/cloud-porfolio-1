@@ -45,8 +45,3 @@ output "backup_vault_name" {
   description = "AWS Backup vault name."
   value       = module.operations.backup_vault_name
 }
-
-output "monitoring_agent_role_arn" {
-  description = "Environment Monitoring Agent diagnostic role ARN, or null when disabled."
-  value       = module.monitoring_agent_access.role_arn
-}

@@ -141,24 +141,6 @@ variable "audit_trusted_principal_arns" {
   default     = []
 }
 
-variable "monitoring_agent_trusted_principal_arns" {
-  description = "Exact central Tool Broker principal ARNs trusted to assume the environment diagnostic role."
-  type        = list(string)
-  default     = []
-}
-
-variable "monitoring_agent_additional_log_group_arns" {
-  description = "Additional workload log group ARNs available to approved Monitoring Agent query templates."
-  type        = set(string)
-  default     = []
-}
-
-variable "monitoring_agent_permissions_boundary_arn" {
-  description = "Optional permissions boundary applied to the Monitoring Agent diagnostic role."
-  type        = string
-  default     = null
-}
-
 variable "github_oidc_provider_arn" {
   description = "Existing GitHub Actions OIDC provider ARN."
   type        = string

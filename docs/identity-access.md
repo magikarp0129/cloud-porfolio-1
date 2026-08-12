@@ -4,7 +4,7 @@
 
 사내 엔지니어와 개발자가 장기 IAM access key를 발급받지 않고 기업 계정으로 인증한 뒤, 승인된 AWS 계정과 역할에만 접근하도록 workforce identity 구조를 정의합니다.
 
-이 문서의 대상은 사람의 AWS Console 및 CLI 접근입니다. CI/CD, 애플리케이션, AI Agent 같은 machine identity는 OIDC federation 또는 IAM role을 사용하며 사람의 SSO 세션을 공유하지 않습니다.
+이 문서의 대상은 사람의 AWS Console 및 CLI 접근입니다. CI/CD와 애플리케이션 같은 machine identity는 OIDC federation 또는 IAM role을 사용하며 사람의 SSO 세션을 공유하지 않습니다.
 
 ## Recommended Identity Source
 
@@ -172,4 +172,3 @@ SCIM으로 관리하는 user와 group membership은 Terraform으로 중복 생�
 - [AWS IAM Identity Center account access and delegated administration](https://docs.aws.amazon.com/singlesignon/latest/userguide/manage-your-accounts.html)
 - [AWS CLI IAM Identity Center configuration](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html)
 - [AWS Management Console Private Access endpoints](https://docs.aws.amazon.com/awsconsolehelpdocs/latest/gsg/required-endpoints-dns-configuration.html)
-
